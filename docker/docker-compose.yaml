@@ -118,15 +118,8 @@ services:
         volumes:
             -   media:/app/media
             -   static:/app/static
-        ports:
-            -
-                target: 8000
-                published: ${HTTP_PORT:-8080}
-                protocol: tcp
-                mode: host
         networks:
             -   mainbus
-            -   default
         environment:
             # These 3 must be provided in .env or by host
             LDAP_URI:
