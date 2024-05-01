@@ -1,0 +1,14 @@
+*.sublime-*
+.*.cfg
+.DS_Store
+.git
+.gitignore
+.venv
+build
+local.py
+media
+src
+static
+support
+venv
+*.md

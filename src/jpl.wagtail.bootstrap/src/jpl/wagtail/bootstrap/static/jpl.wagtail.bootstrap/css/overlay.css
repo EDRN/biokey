@@ -1,0 +1,16 @@
+@charset "UTF-8";
+
+.full-width {
+    /* Reproduced from bootstrap */
+    max-width: 100%;
+    height: auto;
+    padding: 1rem 0;
+}
+.right {
+    float: right;
+    padding: 1rem;
+}
+.left {
+    float: left;
+    padding: 1rem;
+}

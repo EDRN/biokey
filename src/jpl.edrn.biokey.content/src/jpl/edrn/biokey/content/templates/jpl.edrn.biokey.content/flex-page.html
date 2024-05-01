@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags cache wagtailmetadata_tags %}
+{% block metadata_tags %}
+    {{block.super}}
+    {# 🔮 TODO {% meta_tags %} #}
+{% endblock metadata_tags %}
+{% block content %}
+
+    <div class='row'>
+        <div class='col-md-8 offset-md-0'>
+            <h1>{{page.title}}</h1>
+        </div>
+    </div>
+
+    {% for block in page.body %}
+        {% include_block block %}
+    {% endfor %}
+
+{% endblock content %}
+{# -*- Django HTML -*- #}
