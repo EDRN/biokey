@@ -68,9 +68,7 @@ jobs:
                     file: docker/Dockerfile
                     platforms: linux/amd64,linux/arm64/v8
                     push: true
-                    tags: |
-                        ${{secrets.DOCKERHUB_USERNAME}}/biokey:latest
-                        ${{secrets.DOCKERHUB_USERNAME}}/biokey:latest-uid500
+                    tags: ${{secrets.DOCKERHUB_USERNAME}}/biokey:latest
 
 ...
 
