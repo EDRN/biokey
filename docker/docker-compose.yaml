@@ -20,6 +20,7 @@ services:
         image: edrndocker/biokey:${BIOKEY_VERSION:-latest}
         entrypoint: /bin/sh
         command: ['-c', 'cp -aRL /app/static/* /mnt/volume']
+        user: root
         volumes:
             -   static:/mnt/volume
 
