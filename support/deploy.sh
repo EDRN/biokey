@@ -42,9 +42,9 @@ compose exec db dropdb --force --if-exists --username=postgres biokey
 echo "🫄 Creating a new empty biokey database"
 compose exec db createdb --username=postgres --encoding=UTF8 --owner=postgres biokey
 echo "🦆 Applying DB structure"
-compose exec app /app/src/manage.py migrate
+compose exec app /app/bin/django-admin migrate --no-input
 echo "🌸 Blooming initial content and settings"
-compose exec app /app/src/manage.py biokey_bloom
+compose exec app /app/bin/django-admin biokey_bloom
 
 echo "🎉 Done!"
 exit 0
