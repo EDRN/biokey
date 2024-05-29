@@ -23,10 +23,11 @@ if [ ! -d ".venv" ]; then
     python3.11 -m venv .venv
     .venv/bin/pip install --quiet --upgrade setuptools pip wheel build
     # 🔮 TODO: move jpl.wagtail.bootstrap to a separate top-level repository
-    .venv/bin/pip install --editable src/jpl.wagtail.bootstrap
-    for pkg in streams content policy; do
-        .venv/bin/pip install --editable "src/jpl.edrn.biokey.$pkg[dev]"
-    done
+    .venv/bin/pip install --editable src/jpl.wagtail.bootstrap[dev]
+    .venv/bin/pip install --editable src/jpl.edrn.biokey.streams[dev]
+    .venv/bin/pip install --editable src/jpl.edrn.biokey.content[dev]
+    .venv/bin/pip install --editable src/jpl.edrn.biokey.usermgmt[dev]
+    .venv/bin/pip install --editable src/jpl.edrn.biokey.policy[dev]
 fi
 
 command="$1"

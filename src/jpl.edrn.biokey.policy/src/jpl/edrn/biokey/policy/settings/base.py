@@ -6,7 +6,7 @@ from .ldap import *  # noqa: F401, F403
 import dj_database_url, os
 import jpl.edrn.biokey.content.settings as content_settings
 import jpl.wagtail.bootstrap.settings as theme_settings
-
+import jpl.edrn.biokey.usermgmt.settings as usermgmt_settings
 
 # Installed Applications
 # ----------------------
@@ -19,6 +19,7 @@ import jpl.wagtail.bootstrap.settings as theme_settings
 INSTALLED_APPS = theme_settings.INSTALLED_APPS + content_settings.INSTALLED_APPS + [
     'jpl.wagtail.bootstrap',
     'jpl.edrn.biokey.content',
+    'jpl.edrn.biokey.usermgmt',
 
     # Wagtail:
     'wagtail.contrib.redirects',
@@ -72,6 +73,7 @@ MIGRATION_MODULES = {
     'jpl.edrn.biokey.policy': 'jpl.edrn.biokey.policy.migrations',
     **theme_settings.MIGRATION_MODULES,
     **content_settings.MIGRATION_MODULES,
+    **usermgmt_settings.MIGRATION_MODULES,
 }
 
 

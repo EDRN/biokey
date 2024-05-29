@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags cache wagtailmetadata_tags static %}
+{% block metadata_tags %}
+    {{block.super}}
+    {# 🔮 TODO {% meta_tags %} #}
+{% endblock metadata_tags %}
+{% block content %}
+
+    <div class='row'>
+        <div class='col-md-12 offset-md-0'>
+            <h1>{{page.title}}</h1>
+        </div>
+    </div>
+
+    {% if is_superuser %}
+        <dl class='row'>
+            <dt class='col-sm-2'>Server URI</dt>
+            <dd class='col-sm-10'><code>{{page.uri}}</code></dd>
+            <dt class='col-sm-2'>Manager DN</dt>
+            <dd class='col-sm-10'><code>{{page.manager_dn}}</code></dd>
+            <dt class='col-sm-2'>Base DN for users</dt>
+            <dd class='col-sm-10'><code>{{page.user_base}}</code></dd>
+            <dt class='col-sm-2'>User search scope</dt>
+            <dd class='col-sm-10'>{{user_scope}}</dd>
+            <dt class='col-sm-2'>Base DN for groups</dt>
+            <dd class='col-sm-10'><code>{{page.group_base}}</code></dd>
+            <dt class='col-sm-2'>Group search scope</dt>
+            <dd class='col-sm-10'>{{group_scope}}</dd>
+        </dl>
+    {% endif %}
+
+    <div class='row'>
+        <div class='col-sm-auto'>
+            <div class='card' style='width: 18rem;'>
+                <img class='card-img-top' src='{% static "jpl.edrn.biokey.usermgmt/images/sign-up.png" %}'
+                    alt='Sign up for an account' style='width: 18rem;' />
+                <div class='card-body'>
+                    <h5 class='card-title'>Sign Up</h5>
+                    <p class='card-text'>
+                        Use this to register for a new user account in the {{page.title}}.
+                    </p>
+                    <a class='btn btn-primary' href='#'>Sign Up</a>
+                </div>
+            </div>
+        </div>
+        <div class='col-sm-auto'>
+            <div class='card' style='width: 18rem;'>
+                <img class='card-img-top' src='{% static "jpl.edrn.biokey.usermgmt/images/change-pw.png" %}'
+                    alt='Change password or other details' style='width: 18rem;' />
+                <div class='card-body'>
+                    <h5 class='card-title'>Change Password</h5>
+                    <p class='card-text'>
+                        From here you can change your password or other details.
+                    </p>
+                    <a class='btn btn-primary' href='#'>Change Password</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+{# -*- Django HTML -*- #}

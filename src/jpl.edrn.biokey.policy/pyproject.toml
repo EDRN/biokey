@@ -5,6 +5,7 @@ requires-python = '>=3.11'
 dependencies = [
     'jpl.wagtail.bootstrap',
     'jpl.edrn.biokey.content',
+    'jpl.edrn.biokey.usermgmt',
     'celery[redis]         ~= 5.2.7',
     'dj-database-url       ~= 2.1.0',
     'django                ~= 4.2.9',
