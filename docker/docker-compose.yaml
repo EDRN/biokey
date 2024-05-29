@@ -126,6 +126,9 @@ services:
             LDAP_URI:
             POSTGRES_PASSWORD:
             SIGNING_KEY:
+            # This must be provided in .env or by host, but is only used during the
+            # `exec app /app/bin/django-admin biokey_bloom` step:
+            DEFAULT_LDAP_SERVER_PASSWORD:
             # The rest are fine or have fine defaults
             ALLOWED_HOSTS: ${ALLOWED_HOSTS:-.jpl.nasa.gov}
             CACHE_URL: redis://cache
