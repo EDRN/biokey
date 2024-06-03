@@ -2,7 +2,7 @@
 
 '''🧬🔑 BioKey site policy.'''
 
-# from .celery import app as celery_app
+from .celery import app as celery_app
 import importlib.resources
 
 
@@ -11,7 +11,7 @@ __version__ = VERSION = importlib.resources.files(__name__).joinpath('VERSION.tx
 
 
 __all__ = (
-    # celery_app,
+    celery_app,
     PACKAGE_NAME,
     VERSION,
 )

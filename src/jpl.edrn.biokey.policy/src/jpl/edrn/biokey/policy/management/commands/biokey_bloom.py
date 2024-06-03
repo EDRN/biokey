@@ -6,7 +6,9 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from jpl.edrn.biokey.content.models import HomePage
-from jpl.edrn.biokey.usermgmt.models import DirectoryInformationTree, EDRNDirectoryInformationTree
+from jpl.edrn.biokey.usermgmt.models import (
+    DirectoryInformationTree, EDRNDirectoryInformationTree, NameRequestFormPage, EmailSettings
+)
 from robots.models import Rule, DisallowedUrl
 from wagtail.models import Site
 from wagtail.rich_text import RichText
@@ -89,6 +91,17 @@ class Command(BaseCommand):
         parent.add_child(instance=dit)
         self.stdout.write('Added DIT for «Early Detection Research Network»')
         dit.save()
+        name_request = NameRequestFormPage(
+            title="EDRN Sign Up", slug='sign-up',
+            intro=RichText("<p>To get started, let's get your details.</p>")
+        )
+        dit.add_child(instance=name_request)
+        name_request.save()
+
+    def _set_settings(self, site):
+        email = EmailSettings.objects.get_or_create(site_id=site.id)[0]
+        email.from_address = 'no-reply@jpl.nasa.gov'
+        email.save()
 
     def handle(self, *args, **options):
         self.stdout.write('Blooming "BioKey" site')
@@ -99,6 +112,7 @@ class Command(BaseCommand):
 
             site, home_page = self.set_site(options['hostname'])
             self._set_robots_txt(site)
+            self._set_settings(site)
             password = os.getenv('DEFAULT_LDAP_SERVER_PASSWORD')
             if password:
                 self._add_dits(home_page, options['ldap_uri'], password)

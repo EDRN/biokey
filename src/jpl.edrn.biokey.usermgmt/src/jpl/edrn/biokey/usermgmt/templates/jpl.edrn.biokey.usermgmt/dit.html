@@ -30,29 +30,49 @@
     {% endif %}
 
     <div class='row'>
+        {% if sign_up %}            
+            <div class='col-sm-auto'>
+                <div class='card' style='width: 18rem;'>
+                    <a href='{{sign_up}}'>
+                        <img class='card-img-top' src='https://placehold.co/300x200'
+                            alt='Sign up for an account' style='width: 18rem;' />
+                    </a>
+                    <div class='card-body'>
+                        <h5 class='card-title'>Sign Up</h5>
+                        <p class='card-text'>
+                            Use this to register for a new user account in the {{page.title}}.
+                        </p>
+                        <a class='btn btn-primary' href='{{sign_up}}'>Sign Up</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         <div class='col-sm-auto'>
             <div class='card' style='width: 18rem;'>
-                <img class='card-img-top' src='{% static "jpl.edrn.biokey.usermgmt/images/sign-up.png" %}'
-                    alt='Sign up for an account' style='width: 18rem;' />
+                <img class='card-img-top' src='https://placehold.co/300x200'
+                    alt='Change password or other details' style='width: 18rem;' />
                 <div class='card-body'>
-                    <h5 class='card-title'>Sign Up</h5>
+                    <h5 class='card-title'>Change Password</h5>
                     <p class='card-text'>
-                        Use this to register for a new user account in the {{page.title}}.
+                        If you know your password, you can change it. You can also update
+                        other personal details, depending on your account type.
                     </p>
-                    <a class='btn btn-primary' href='#'>Sign Up</a>
+                    <a class='btn btn-primary' href='#'>Change Password</a>
                 </div>
             </div>
         </div>
         <div class='col-sm-auto'>
             <div class='card' style='width: 18rem;'>
-                <img class='card-img-top' src='{% static "jpl.edrn.biokey.usermgmt/images/change-pw.png" %}'
-                    alt='Change password or other details' style='width: 18rem;' />
+                <img class='card-img-top' src='https://placehold.co/300x200'
+                    alt='Forgot your password?' style='width: 18rem;' />
                 <div class='card-body'>
-                    <h5 class='card-title'>Change Password</h5>
+                    <h5 class='card-title'>Forgotten account?</h5>
                     <p class='card-text'>
-                        From here you can change your password or other details.
+                        Don't remember your password? Depending on your account type, you can reset it.
+                        If you don't remember your username, you can try to recover it using your email
+                        address.
                     </p>
-                    <a class='btn btn-primary' href='#'>Change Password</a>
+                    <a class='btn btn-primary' href='#'>Forgotten Account</a>
                 </div>
             </div>
         </div>

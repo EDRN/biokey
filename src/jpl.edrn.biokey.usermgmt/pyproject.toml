@@ -3,11 +3,12 @@ name = 'jpl.edrn.biokey.usermgmt'
 dynamic = ['version']
 requires-python = '>=3.11'
 dependencies = [
+    'celery ~= 5.2.7',
     'django < 5',
-    'wagtail < 6',
+    'django-recaptcha ~= 3.0.0',
     'django-widget-tweaks ~= 1.4.12',
-    'wagtail-django-recaptcha ~= 1.0',
-    'django-recaptcha ~= 3.0.0'
+    'wagtail < 6',
+    'wagtail-django-recaptcha ~= 1.0'
 ]
 authors = [
     {name = 'Sean Kelly', email='kelly@seankelly.biz'}

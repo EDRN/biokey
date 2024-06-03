@@ -327,3 +327,23 @@ WAGTAILSEARCH_BACKENDS = {
         'AUTO_UPDATE': True
     }
 }
+
+
+# Logging
+# -------
+#
+# There's got to be a better way to set this up tersely without clobbering existing settings while
+# still be resilient in the face of no settings 😬
+#
+# 🔗 https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-LOGGING
+
+from django.utils.log import DEFAULT_LOGGING  # noqa
+LOGGING = globals().get('LOGGING', DEFAULT_LOGGING)
+loggers = LOGGING.get('loggers', {})
+eke_knowledge = loggers.get('jpl.edrn.biokey', {})
+eke_knowledge_handlers = set(eke_knowledge.get('handlers', []))
+eke_knowledge_level = eke_knowledge.get('level', 'INFO')
+eke_knowledge_handlers.add('console')
+eke_knowledge['handlers'] = list(eke_knowledge_handlers)
+eke_knowledge['level'] = eke_knowledge_level
+loggers['jpl.edrn.biokey'] = eke_knowledge

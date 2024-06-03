@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load wagtailcore_tags biokey_usermgmt_filters %}
+{% block content %}
+
+    <h1>Possible Existing Account{% if plural %}s{% endif %} Found</h1>
+
+    {% if plural %}
+        <p>We found accounts that might belong to you. Do any of these email addresses look familiar?</p>
+    {% else %}
+        <p>We found an account that might belong to you. Does this email address look familiar?</p>
+    {% endif %}
+
+    <div class='row'>
+        <ul class='col-auto'>
+            {% for email in potential_emails %}
+                <li><code>{{email|obscured_email}}</code></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <dl class='row'>
+        <dt class='col-sm-1'>If so…</dt>
+        <dd class='col-sm-11'>
+            Return to the <a href='{{parent_url}}'>{{consortium}}</a> to look up your account or reset your password.
+        </dd>
+        <dt class='col-sm-1'>If not…</dt>
+        <dd class='col-sm-11'>
+            <form action='.' method='POST'>
+                {% csrf_token %}
+                <input type='hidden' name='first_name' value='{{first_name}}'/>
+                <input type='hidden' name='last_name' value='{{last_name}}'/>
+                <input type='hidden' name='do_sign_up' value='1'/>
+                <input type='submit' value='Proceed to sign up for a new account'/>
+            </form>
+
+        </dd>
+    </dl>
+
+{% endblock content %}
+{# -*- Django HTML -*- #}
