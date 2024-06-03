@@ -7,13 +7,9 @@ from django import forms
 
 from django.http import HttpRequest, HttpResponse
 from captcha.fields import ReCaptchaField
-from wagtail.admin.panels import FieldPanel
-from django.conf import settings
-from wagtail.models import Page
 from ._forms import AbstractForm, AbstractFormPage
 from django.shortcuts import render
 from ._ldap import get_potential_accounts, create_public_edrn_account
-import ldap
 
 
 class NameRequestForm(AbstractForm):
@@ -23,10 +19,6 @@ class NameRequestForm(AbstractForm):
     )
     last_name = forms.CharField(label='Last Name', help_text="What's your last name, surname, or family name?")
     do_sign_up = forms.CharField(initial='0', widget=forms.HiddenInput(), required=False)
-
-    # Probably not necessary on this form
-    # if not settings.DEBUG:
-    #     captcha = ReCaptchaField()
 
 
 class AccountSignUpForm(NameRequestForm):
@@ -39,7 +31,9 @@ class AccountSignUpForm(NameRequestForm):
 
     do_sign_up = forms.CharField(initial='1', widget=forms.HiddenInput(), required=False)
 
-    # Captcha here?
+    # 🔮 CAPTCHA needed here
+    # if not settings.DEBUG:
+    #     captcha = ReCaptchaField()
 
 
 class NameRequestFormPage(AbstractFormPage):

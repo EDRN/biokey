@@ -7,7 +7,8 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from jpl.edrn.biokey.content.models import HomePage
 from jpl.edrn.biokey.usermgmt.models import (
-    DirectoryInformationTree, EDRNDirectoryInformationTree, NameRequestFormPage, EmailSettings
+    DirectoryInformationTree, EDRNDirectoryInformationTree, NameRequestFormPage, EmailSettings,
+    ForgottenDetailsFormPage
 )
 from robots.models import Rule, DisallowedUrl
 from wagtail.models import Site
@@ -97,10 +98,17 @@ class Command(BaseCommand):
         )
         dit.add_child(instance=name_request)
         name_request.save()
+        forgotten = ForgottenDetailsFormPage(
+            title='EDRN: Forgotten Account Details', slug='forgotten',
+            intro=RichText("<p>You can use this form if you've forgotten your password or even your username.</p>")
+        )
+        dit.add_child(instance=forgotten)
+        forgotten.save()
 
     def _set_settings(self, site):
         email = EmailSettings.objects.get_or_create(site_id=site.id)[0]
         email.from_address = 'no-reply@jpl.nasa.gov'
+        email.new_users_address = 'edrn-ic@jpl.nasa.gov'
         email.save()
 
     def handle(self, *args, **options):

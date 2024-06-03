@@ -12,5 +12,9 @@ class EmailSettings(BaseSiteSetting):
         blank=False, null=False, help_text='Address from which to send emails', default='no-reply@jpl.nasa.gov',
         max_length=50
     )
+    new_users_addresses = models.CharField(
+        blank=False, null=False, help_text='Addresses (comma-separated) to notify when new users are created',
+        default='edrn-ic@jpl.nasa.gov', max_length=512
+    )
     class Meta:
         verbose_name = 'Email'

@@ -61,21 +61,23 @@
                 </div>
             </div>
         </div>
-        <div class='col-sm-auto'>
-            <div class='card' style='width: 18rem;'>
-                <img class='card-img-top' src='https://placehold.co/300x200'
-                    alt='Forgot your password?' style='width: 18rem;' />
-                <div class='card-body'>
-                    <h5 class='card-title'>Forgotten account?</h5>
-                    <p class='card-text'>
-                        Don't remember your password? Depending on your account type, you can reset it.
-                        If you don't remember your username, you can try to recover it using your email
-                        address.
-                    </p>
-                    <a class='btn btn-primary' href='#'>Forgotten Account</a>
+        {% if forgotten %}
+            <div class='col-sm-auto'>
+                <div class='card' style='width: 18rem;'>
+                    <img class='card-img-top' src='https://placehold.co/300x200'
+                        alt='Forgot your password?' style='width: 18rem;' />
+                    <div class='card-body'>
+                        <h5 class='card-title'>Forgotten account?</h5>
+                        <p class='card-text'>
+                            Don't remember your password? Depending on your account type, you can reset it.
+                            If you don't remember your username, you can try to recover it using your email
+                            address.
+                        </p>
+                        <a class='btn btn-primary' href='{{forgotten}}'>Forgotten Account</a>
+                    </div>
                 </div>
             </div>
-        </div>
+        {% endif %}
     </div>
 
 {% endblock content %}

@@ -63,6 +63,8 @@ class DirectoryInformationTree(Page):
         context['group_scope'] = _scope_choices[self.group_scope]
         sign_up = self.get_children().filter(slug='sign-up').first()
         if sign_up: context['sign_up'] = sign_up.url
+        forgotten = self.get_children().filter(slug='forgotten').first()
+        if forgotten: context['forgotten'] = forgotten.url
         return context
 
 
