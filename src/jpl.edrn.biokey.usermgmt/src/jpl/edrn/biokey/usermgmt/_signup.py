@@ -5,11 +5,12 @@
 
 from django import forms
 
-from django.http import HttpRequest, HttpResponse
-from captcha.fields import ReCaptchaField
 from ._forms import AbstractForm, AbstractFormPage
-from django.shortcuts import render
 from ._ldap import get_potential_accounts, create_public_edrn_account
+from .constants import MAX_EMAIL_LENGTH
+from captcha.fields import ReCaptchaField
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render
 
 
 class NameRequestForm(AbstractForm):
@@ -26,7 +27,7 @@ class AccountSignUpForm(NameRequestForm):
     _telephone_text = '''Your telephone number, including country code and area code, if you know them. We use this as a last resort to text you a new password should other password resets fail.'''
 
     telephone = forms.CharField(label='Telephone', max_length=40, help_text=_telephone_text)
-    email = forms.EmailField(label='Email', help_text='How to reach you by email.')
+    email = forms.EmailField(label='Email', help_text='How to reach you by email.', max_length=MAX_EMAIL_LENGTH)
     for_self = forms.BooleanField(label='Certification', help_text=_certification_text)
 
     do_sign_up = forms.CharField(initial='1', widget=forms.HiddenInput(), required=False)

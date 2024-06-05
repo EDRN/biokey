@@ -70,7 +70,7 @@ createdb "biokey" 'Database for BioKey'
 
 # Add additional upgrade steps here:
 
-./manage.sh biokey_bloom --hostname localhost --ldap-uri ldaps://localhost:1636
+./manage.sh biokey_bloom --hostname localhost --port 6468 --ldap-uri ldaps://localhost:1636
 
 # And make development a breeze
 

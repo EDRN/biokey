@@ -13,9 +13,9 @@ from wagtail.contrib.sitemaps.views import sitemap
 from wagtail import urls as wagtail_urls
 from wagtail.documents import urls as wagtaildocs_urls
 from wagtail_favicon.urls import urls as favicon_urls
+from jpl.edrn.biokey.usermgmt.urls import urlpatterns as usermgmt_urlpatterns
 
-
-urlpatterns = [
+urlpatterns = usermgmt_urlpatterns + [
     path('django-admin/', admin.site.urls),
     path('admin/', include(wagtailadmin_urls)),
     path('documents/', include(wagtaildocs_urls)),

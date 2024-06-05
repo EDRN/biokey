@@ -8,7 +8,7 @@ from django.core.management.base import BaseCommand
 from jpl.edrn.biokey.content.models import HomePage
 from jpl.edrn.biokey.usermgmt.models import (
     DirectoryInformationTree, EDRNDirectoryInformationTree, NameRequestFormPage, EmailSettings,
-    ForgottenDetailsFormPage
+    ForgottenDetailsFormPage, PasswordSettings
 )
 from robots.models import Rule, DisallowedUrl
 from wagtail.models import Site
@@ -19,20 +19,21 @@ import argparse, os, ldap
 class Command(BaseCommand):
     help = 'Blooms BioKey with initial content'
     _hostname = 'edrn.jpl.nasa.gov'
+    _port = 80
     _description = 'User profile management for cancer biomarker applications'
     _seo_title = 'EDRN BioKey User Profile Management'
     _ldap_uri = 'ldaps://edrn-ds.jpl.nasa.gov'
 
     def add_arguments(self, parser: argparse.ArgumentParser):
         parser.add_argument('--hostname', help='Hostname of the site (default: %(default)s)', default=self._hostname)
+        parser.add_argument('--port', help='Port of the site (default %(default)s)', default=self._port, type=int)
         parser.add_argument('--ldap-uri', help='URI of EDRN LDAP (default: %(default)s)', default=self._ldap_uri)
 
-    def set_site(self, hostname: str):
+    def set_site(self, hostname: str, port: int):
         '''Set up the Wagtail `Site` object for BioKey.'''
 
         site = Site.objects.filter(is_default_site=True).first()
-        site.site_name = 'BioKey'
-        site.hostname = hostname 
+        site.site_name, site.hostname, site.port = 'BioKey', hostname, port
         site.save()
         old_root = site.root_page.specific
         if old_root.title == 'BioKey':
@@ -47,6 +48,7 @@ class Command(BaseCommand):
         home_page.body.append(('title', {'text': 'EDRN LabCAS User Profile Service'}))
         home_page.body.append(('rich_text', RichText('<p>Welcome to Project: BioKey</p>')))
         home_page.body.append(('rich_text', RichText('<p><em>This is a work in progress.</em></p>')))
+        home_page.body.append(('rich_text', RichText('<ul><li><a href="edrn">EDRN</a></li><li><a href="mcl">MCL</a></li><li><a href="nist">NIST</a></li></ul>')))
         site.root_page = home_page
         old_root.delete()
         mega_root.save()
@@ -111,6 +113,10 @@ class Command(BaseCommand):
         email.new_users_address = 'edrn-ic@jpl.nasa.gov'
         email.save()
 
+        password = PasswordSettings.objects.get_or_create(site_id=site.id)[0]
+        password.reset_window = 4320
+        password.save()
+
     def handle(self, *args, **options):
         self.stdout.write('Blooming "BioKey" site')
 
@@ -118,7 +124,7 @@ class Command(BaseCommand):
             settings.WAGTAILREDIRECTS_AUTO_CREATE = False
             settings.WAGTAILSEARCH_BACKENDS['default']['AUTO_UPDATE'] = False
 
-            site, home_page = self.set_site(options['hostname'])
+            site, home_page = self.set_site(options['hostname'], options['port'])
             self._set_robots_txt(site)
             self._set_settings(site)
             password = os.getenv('DEFAULT_LDAP_SERVER_PASSWORD')
