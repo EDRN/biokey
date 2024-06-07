@@ -29,6 +29,23 @@ _scope_choices = {
 
 
 class DirectoryInformationTree(Page):
+    _requested_reset = '''To reset the password for account "{uid}", you'll need to visit the following link within {natural_delta}:
+
+{link}
+
+Please note that link will expire on {expiration_time} (UTC). If you can't visit the link in that time, simply return to {url} and restart the forgotten password process.
+
+Thank you.
+'''
+    _created_account = '''Your account, "{uid}", has been created for the {consortium}. To set the password for this account, you'll need to visit the following link within {natural_delta}:
+
+{link}
+
+Please note that this link will expire on {expiration_time} (UTC). If you can't visit the link in that time, visit {url} and choose the "Forgotten password" option for a fresh link.
+
+Thank you.
+'''
+
     template = 'jpl.edrn.biokey.usermgmt/dit.html'
     page_description = 'A single data information tree within LDAP in which users and groups are found'
     search_auto_update = False
@@ -55,6 +72,13 @@ class DirectoryInformationTree(Page):
     group_scope = models.IntegerField(
         blank=False, help_text='Search scope for groups', default=ldap.SCOPE_ONELEVEL, choices=_scope_choices.items()
     )
+    creation_email_template = models.TextField(
+        blank=True, help_text="Email template for end users' newly-created accounts", default=_created_account
+    )
+    reset_request_email_template = models.TextField(
+        blank=True, help_text="Email template for end users' requests to reset their passwords",
+        default=_requested_reset
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel('uri'),
@@ -64,6 +88,8 @@ class DirectoryInformationTree(Page):
         FieldPanel('user_scope'),
         FieldPanel('group_base'),
         FieldPanel('group_scope'),
+        FieldPanel('creation_email_template'),
+        FieldPanel('reset_request_email_template'),
     ]
 
     def get_context(self, request: HttpRequest, *args, **kwargs) -> dict:
@@ -77,25 +103,16 @@ class DirectoryInformationTree(Page):
         if forgotten: context['forgotten'] = forgotten.url
         return context
 
-    _biokey_reset = '''To reset the password for account "{uid}", you'll need to visit the following link within {natural_delta}:
-
-{link}
-
-Please note that link will expire on {expiration_time} (UTC). If you can't visit the link in that time, simply return to {url} and restart the forgotten password process.
-
-Thank you.
-'''
-
     def send_reset_email(self, account: dict, request: HttpRequest):
         # Generate a timer and a token
-        site = Site.objects.filter(is_default_site=True).first()
+        site = Site.find_for_request(request)
         email, pwd = EmailSettings.for_site(site), PasswordSettings.for_site(site)
         window, now = datetime.timedelta(minutes=pwd.reset_window), timezone.now()
         expiration = now + window
         from ._ldap import generate_reset_token
         token = generate_reset_token(account, expiration, self)
         link = make_pwreset_url(self.slug, account['uid'], token, request)
-        message = self._biokey_reset.format(
+        message = self.reset_request_email_template.format(
             uid=account['uid'], natural_delta=humanize.naturaldelta(window), link=link, 
             expiration_time=expiration.ctime(), url=self.full_url,
         )
@@ -107,6 +124,31 @@ Thank you.
     def send_account_reminder_email(self, account: dict):
         raise NotImplementedError("This doesn't work yet either")
 
+    def create_account(self, fn: str, ln: str, phone: str, email: str, request: HttpRequest) -> str:
+        from ._ldap import create_new_account, generate_reset_token, get_account_by_uid
+        site = Site.find_for_request(request)
+        account_name = create_new_account(fn, ln, phone, email, self)
+        account = get_account_by_uid(account_name, self)
+        email_settings, pwd_settings = EmailSettings.for_site(site), PasswordSettings.for_site(site)
+        window, now = datetime.timedelta(minutes=pwd_settings.reset_window), timezone.now()
+        expiration = now + window
+        consortium = self.slug.upper()
+        token = generate_reset_token(account, expiration, self)
+        link = make_pwreset_url(self.slug, account_name, token, request)
+        message = self.creation_email_template.format(
+            uid=account_name, consortium=self.title, natural_delta=humanize.naturaldelta(window), link=link,
+            expiration_time=expiration.ctime(), url=self.full_url
+        )
+        send_email(
+            email_settings.from_address, [email], f'Your new {consortium} account', message, attachment=None, delay=0
+        )
+        send_email(
+            email_settings.from_address, [i.strip() for i in email_settings.new_users_addresses.split(',')],
+            f'New {consortium} account created', f'New {consortium} account «{account_name}» has just been created',
+            attachment=None, delay=10
+        )
+        return account_name
+
 
 class EDRNDirectoryInformationTree(DirectoryInformationTree):
     page_description = 'A data information tree with users backed by the DMCC'
@@ -116,10 +158,18 @@ class EDRNDirectoryInformationTree(DirectoryInformationTree):
 
 To reset the password on this account, please visit the DMCC website at this address:
 
-https://www.compass.fhcrc.org/edrns/pub/user/resetPwd.aspx?t=pwd&amp;sub=form&amp;w=1&amp;p=3&amp;param=reset&amp;t3=982
+https://www.compass.fhcrc.org/edrns/pub/user/resetPwd.aspx?t=pwd&amp;t2=pwd2&amp;sub=form&amp;w=1&amp;p=3&amp;param=reset&amp;t3=pwd&amp;sub2=lift
 
 Thank you.
 '''
+
+    dmcc_managed_email_template = models.TextField(
+        blank=True, help_text='Email template to notify that theirs is a secure-site account', default=_dmcc_reset
+    )
+
+    content_panels = DirectoryInformationTree.content_panels + [
+        FieldPanel('dmcc_managed_email_template'),
+    ]
 
     def send_reset_email(self, account: dict, request: HttpRequest):
         '''Send a password reset email for EDRN.
@@ -136,7 +186,7 @@ Thank you.
 
         # If it's a DMCC account, let the DMCC handle it
         if account.get('desc', '').startswith('imported via EDRN dmccsync'):
-            message = self._dmcc_reset.format(uid=account['uid'])
+            message = self.dmcc_managed_email_template.format(uid=account['uid'])
             send_email(settings.from_address, [to_address], 'EDRN Password Reset', message, attachment=None, delay=0)
         else:
             # It's one of "our own"

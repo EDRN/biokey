@@ -4,11 +4,8 @@
 
 
 from ._dits import DirectoryInformationTree
-from ._settings import EmailSettings
-from .tasks import send_email
 from .constants import MAX_EMAIL_LENGTH
 from contextlib import contextmanager
-from django.utils import timezone
 from wagtail.models import Site
 import logging, ldap, random, re, string, hashlib, base64, ldap.modlist, json, datetime, os
 
@@ -164,20 +161,10 @@ def generate_reset_token(account: dict, expiration: datetime.datetime, dit: Dire
     return token
 
 
-def create_public_edrn_account(fn: str, ln: str, telephone: str, email: str, dit: DirectoryInformationTree) -> str:
-    _logger.info('Creating public EDRN account for «%s» at «%s»', ln, email)
+def create_new_account(fn: str, ln: str, telephone: str, email: str, dit: DirectoryInformationTree) -> str:
+    _logger.info('Creating new account for «%s» at «%s» in %s', ln, email, dit.slug)
     account_name = generate_account_name(fn, ln, dit)
     create_account(account_name, fn, ln, email, telephone, _edrn_object_classes, dit.slug, dit)
-    settings = EmailSettings.for_site(Site.objects.filter(is_default_site=True).first())
-    send_email(
-        settings.from_address, [email], 'Your new EDRN account', f'Your account {account_name} is ready', 
-        attachment=None, delay=0
-    )
-    send_email(
-        settings.from_address, [i.strip() for i in settings.new_users_addresses.split(',')],
-        'New EDRN account created', f'New EDRN account {account_name} has just been created',
-        attachment=None, delay=10
-    )
     return account_name
 
 

@@ -4,8 +4,11 @@
 
 
 from ._forms import AbstractForm, AbstractFormPage
-from ._ldap import get_potential_accounts, create_public_edrn_account
+from ._settings import EmailSettings
+from ._ldap import get_potential_accounts, create_new_account
 from .constants import MAX_EMAIL_LENGTH, GENERIC_FORM_TEMPLATE
+from .tasks import send_email
+from wagtail.models import Site
 from captcha.fields import ReCaptchaField
 from django import forms
 from django.http import HttpRequest, HttpResponse
@@ -45,12 +48,13 @@ class NameRequestFormPage(AbstractFormPage):
                 if do_sign_up:
                     form = AccountSignUpForm(request.POST, page=self)
                     if form.is_valid() and form.cleaned_data.get('for_self'):
-                        account_name = create_public_edrn_account(
+                        email = form.cleaned_data['email']
+                        account_name = dit.create_account(
                             form.cleaned_data['first_name'], form.cleaned_data['last_name'],
-                            form.cleaned_data['telephone'], form.cleaned_data['email'], dit
+                            form.cleaned_data['telephone'], email, request
                         )
                         params = {
-                            'email': form.cleaned_data['email'], 'account_name': account_name,
+                            'email': email, 'account_name': account_name,
                             'parent_url': parent.url, 'consortium': parent.title
                         }
                         return render(request, 'jpl.edrn.biokey.usermgmt/account-created.html', params)
