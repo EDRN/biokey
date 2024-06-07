@@ -5,7 +5,7 @@
 
 from ._forms import AbstractForm, AbstractFormPage
 from ._ldap import get_account_by_uid, get_accounts_by_email
-from .constants import MAX_UID_LENGTH, MAX_EMAIL_LENGTH
+from .constants import MAX_UID_LENGTH, MAX_EMAIL_LENGTH, MAX_PASSWORD_LENGTH, GENERIC_FORM_TEMPLATE
 from captcha.fields import ReCaptchaField
 from django import forms
 from django.core.exceptions import ValidationError
@@ -42,7 +42,8 @@ class ForgottenDetailsFormPage(AbstractFormPage):
                 uid, email = form.cleaned_data['uid'], form.cleaned_data['email']
                 if uid:
                     account = get_account_by_uid(uid, dit)
-                    # If account is found or not, tell the user the process has begun
+                    # If account is found or not, tell the user the process has begun anyway; this
+                    # prevents information leakage about which are known account names.
                     params = {'page': self, 'uid': uid}
                     if account:
                         dit.send_reset_email(account, request)
@@ -52,4 +53,18 @@ class ForgottenDetailsFormPage(AbstractFormPage):
         else:
             form = ForgottenDetailsForm(page=self)
         self._bootstrap(form)
-        return render(request, 'jpl.edrn.biokey.usermgmt/form.html', {'page': self, 'form': form})
+        return render(request, GENERIC_FORM_TEMPLATE, {'page': self, 'form': form})
+
+
+class ResetForgottenPasswordForm(AbstractForm):
+    new_password = forms.CharField(
+        help_text='Enter a new password', max_length=MAX_PASSWORD_LENGTH, widget=forms.PasswordInput()
+    )
+    confirm_new_password = forms.CharField(
+        help_text='Confirm the new password', max_length=MAX_PASSWORD_LENGTH, widget=forms.PasswordInput()
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        n, c = cleaned_data.get('new_password'), cleaned_data.get('confirm_new_password')
+        if n != c: raise ValidationError('Passwords do not match')

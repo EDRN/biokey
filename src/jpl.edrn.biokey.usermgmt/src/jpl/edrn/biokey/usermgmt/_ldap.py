@@ -142,11 +142,11 @@ def generate_account_name(fn: str, ln: str, dit: DirectoryInformationTree) -> st
 def _update_biokey_description(account: dict, biokey: dict):
     '''Update the `@@biokey` in the description of the given `account`.
 
-    This preserves any text preceding the `@@biokey`.
+    This preserves any text preceding the `@@biokey`. It'll encode it as UTF-8 too.
     '''
     biokey_match = _biokey_json_re.match(account.get('description', ''))
     preceding = biokey_match.group(1) if biokey_match else ''
-    return f'{preceding} @@biokey={json.dumps(biokey)}'
+    return f'{preceding} @@biokey={json.dumps(biokey)}'.strip().encode('utf-8')
 
 
 def generate_reset_token(account: dict, expiration: datetime.datetime, dit: DirectoryInformationTree) -> str:
@@ -157,12 +157,10 @@ def generate_reset_token(account: dict, expiration: datetime.datetime, dit: Dire
     biokey = account.get('biokey', {})
     biokey['reset_token'] = token
     biokey['reset_time'] = expiration.isoformat()
-    new_desc = _update_biokey_description(account, biokey).encode('utf-8')
-
+    new_desc = _update_biokey_description(account, biokey)
     with ldap_connection(dit) as connection:
-        desc_mod = [(ldap.MOD_REPLACE, 'description', new_desc)]
+        desc_mod = [(ldap.MOD_REPLACE, 'description', [new_desc])]
         connection.modify_s(account['dn'], desc_mod)
-
     return token
 
 
@@ -196,3 +194,29 @@ def get_accounts_by_email(email: str, dit: DirectoryInformationTree) -> list:
     with ldap_connection(dit) as connection:
         results = connection.search_s(dit.user_base, dit.user_scope, f'(uid={email})')
         raise NotImplementedError('fix this too')
+
+
+def reset_password_in_dit(dit: DirectoryInformationTree, uid: str, new_password: str):
+    '''Set the password for `uid` to `new_password` in the `dit` and clear any reset tokens in the `biokey`.'''
+    _logger.info('Resetting password for %s in %s and clearing reset info', uid, dit.slug)
+    account = get_account_by_uid(uid, dit)
+    if not account:
+        raise ValueError(f"uid {uid} doesn't exist in {dit.slug}")
+    biokey = account.get('biokey', {})
+    for key in ('reset_token', 'reset_time'):
+        try:
+            del biokey[key]
+        except KeyError:
+            pass
+    description = _update_biokey_description(account, biokey)
+
+    hasher = hashlib.new('sha1', new_password.encode('utf-8'))
+    hashed_password = '{SHA}' + base64.b64encode(hasher.digest()).decode('ascii')
+    pw = hashed_password.encode('utf-8')
+
+    with ldap_connection(dit) as connection:
+        modlist = [
+            (ldap.MOD_REPLACE, 'description', [description]),
+            (ldap.MOD_REPLACE, 'userPassword', [pw])
+        ]
+        connection.modify_s(account['dn'], modlist)

@@ -3,12 +3,11 @@
 '''🧬🔑🕴️ BioKey user management: sign-up forms.'''
 
 
-from django import forms
-
 from ._forms import AbstractForm, AbstractFormPage
 from ._ldap import get_potential_accounts, create_public_edrn_account
-from .constants import MAX_EMAIL_LENGTH
+from .constants import MAX_EMAIL_LENGTH, GENERIC_FORM_TEMPLATE
 from captcha.fields import ReCaptchaField
+from django import forms
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
@@ -76,4 +75,4 @@ class NameRequestFormPage(AbstractFormPage):
             # First visit via GET, so just ask for name
             form = NameRequestForm(page=self)
         self._bootstrap(form)
-        return render(request, 'jpl.edrn.biokey.usermgmt/form.html', {'page': self, 'form': form})
+        return render(request, GENERIC_FORM_TEMPLATE, {'page': self, 'form': form})

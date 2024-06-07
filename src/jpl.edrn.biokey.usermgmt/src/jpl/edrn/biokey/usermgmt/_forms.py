@@ -2,16 +2,15 @@
 
 '''🧬🔑🕴️ BioKey user management: forms.'''
 
-from django.db import models
+from .constants import GENERIC_FORM_TEMPLATE
+from ._theme import bootstrap_form_widgets
 from django import forms
-from django.core.validators import URLValidator
 from django.forms.utils import ErrorList
-from django.shortcuts import render
 from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render
 from wagtail.admin.panels import FieldPanel
-from wagtail.models import Page
 from wagtail.fields import RichTextField
-import ldap
+from wagtail.models import Page
 
 
 class BootstrapErrorList(ErrorList):
@@ -94,14 +93,8 @@ class AbstractFormPage(Page):
         raise NotImplementedError('Subclasses must implement get_landing_page')
 
     def _bootstrap(self, form: forms.Form):
-        '''Add Boostrap class to every widget except checkboxes & radio buttons.'''
-        for field in form.fields.values():
-            if not isinstance(
-                field.widget, (
-                    forms.widgets.CheckboxInput, forms.widgets.CheckboxSelectMultiple, forms.widgets.RadioSelect
-                )
-            ):
-                field.widget.attrs.update({'class': 'form-control'})
+        '''Add Boostrap class to form widgets.'''
+        bootstrap_form_widgets(form)
 
     def serve(self, request: HttpRequest) -> HttpResponse:
         form_class = self.get_form()
@@ -113,7 +106,7 @@ class AbstractFormPage(Page):
         else:
             form = form_class(initial=self.get_initial_values(request), page=self)
         self._bootstrap(form)
-        return render(request, 'jpl.edrn.biokey.usermgmt/form.html', {'page': self, 'form': form})
+        return render(request, GENERIC_FORM_TEMPLATE, {'page': self, 'form': form})
 
     class Meta:
         abstract = True
