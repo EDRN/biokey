@@ -185,7 +185,17 @@ The QA team consists of:
 
 To contact the team as a whole, [email the Informatics Center](mailto:ic-portal@jpl.nasa.gov).
 
+## 🏞️ Image Credits
+
+Images used in this software from [Pexels](https://pexels.com/), namely:
+
+- "[Person Holding A Book](https://www.pexels.com/photo/person-holding-a-book-3832028/)" by "cottonbro studio"
+- "[Red and Green Tree Leaves on a Sunny Day](https://www.pexels.com/photo/red-and-green-tree-leaves-on-a-sunny-day-668553/)" by "le vy"
+- "[Black and White Wooden Welcome Sign](https://www.pexels.com/photo/black-and-white-wooden-welcome-sign-3643925/)" by [Tim Mossholder](https://www.instagram.com/timmossholder)
+
+See the [Pexels license](https://www.pexels.com/license/).
+
 
 ## 📃 License
 
-The project is licensed under the [Apache version 2](LICENSE.md) license.
+The software is licensed under the [Apache version 2](LICENSE.md) license.

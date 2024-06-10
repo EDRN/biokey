@@ -3,6 +3,7 @@
 '''🧬🔑🕴️ BioKey user management: sign-up forms.'''
 
 
+from . import PACKAGE_NAME
 from ._forms import AbstractForm, AbstractFormPage
 from ._settings import EmailSettings
 from ._ldap import get_potential_accounts, create_new_account
@@ -57,7 +58,7 @@ class NameRequestFormPage(AbstractFormPage):
                             'email': email, 'account_name': account_name,
                             'parent_url': parent.url, 'consortium': parent.title
                         }
-                        return render(request, 'jpl.edrn.biokey.usermgmt/account-created.html', params)
+                        return render(request, PACKAGE_NAME + '/account-created.html', params)
                 else:
                     fn, ln = form.cleaned_data['first_name'], form.cleaned_data['last_name']
                     potential_emails = get_potential_accounts(fn, ln, dit)
@@ -69,7 +70,7 @@ class NameRequestFormPage(AbstractFormPage):
                             'potential_emails': potential_emails, 'plural': plural, 'consortium': parent.title,
                             'parent_url': parent.url, 'first_name': fn, 'last_name': ln
                         }
-                        return render(request, 'jpl.edrn.biokey.usermgmt/potential-emails.html', params)
+                        return render(request, PACKAGE_NAME + '/potential-emails.html', params)
                     else:
                         form = AccountSignUpForm(initial={'first_name': fn, 'last_name': ln}, page=self)
 

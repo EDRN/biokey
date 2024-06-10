@@ -2,14 +2,18 @@
 {% load wagtailcore_tags biokey_usermgmt_filters %}
 {% block content %}
 
-    <h1>Sending Password Reset Email</h1>
+    <h1>Sending Account Name Reminder</h1>
 
     <div class='row'>
         <div class='col-auto'>
             <p>
-                We're preparing an email message to reset the password for account <code>{{uid}}</code>.
-                If that account is known to the system, the address on that account will 
-                receive a link that'll let you reset the password.
+                We're preparing an email message to <code>{{email}}</code> containing the user ID
+                that goes with that email address, assuming that address is known to the system.
+            </p>
+            <p>
+                Once you get the user ID, you can
+                <a href='{{dit.full_url}}'>return to the {{dit.title}} page</a> to change the
+                password or reset a forgotten password.
             </p>
         </div>
     </div>
@@ -19,7 +23,10 @@
                 <strong>Please note</strong> that sometimes our emails can end up in your
                 "junk" or "spam" folders. If you don't see the message, check those folders.
             </p>
-            <p>If you still don't receive the email, <a href='mailto:{{us}}'>feel free to contact us</a>.</p>
+            <p>
+                If you still don't receive the email,
+                <a href='mailto:{{dit.help_address}}'>feel free to contact us</a>.
+            </p>
         </div>
     </div>
     <div class='row'>

@@ -2,6 +2,7 @@
 
 '''🧬🔑🕴️ BioKey user management: forms.'''
 
+from . import PACKAGE_NAME
 from .constants import GENERIC_FORM_TEMPLATE
 from ._theme import bootstrap_form_widgets
 from django import forms
@@ -23,8 +24,8 @@ class BootstrapErrorList(ErrorList):
 
 class AbstractForm(forms.Form):
     '''This is an abstract form that sets up our preferred styles.'''
-    template_name = 'jpl.edrn.biokey.usermgmt/form-rendering.html'
-    template_name_label = 'jpl.edrn.biokey.usermgmt/label-rendering.html'
+    template_name = PACKAGE_NAME + '/form-rendering.html'
+    template_name_label = PACKAGE_NAME + '/label-rendering.html'
     error_css_class = 'is-invalid'
     required_css_class = 'is-required'
 

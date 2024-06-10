@@ -8,7 +8,7 @@ from django.core.management.base import BaseCommand
 from jpl.edrn.biokey.content.models import HomePage
 from jpl.edrn.biokey.usermgmt.models import (
     DirectoryInformationTree, EDRNDirectoryInformationTree, NameRequestFormPage, EmailSettings,
-    ForgottenDetailsFormPage, PasswordSettings
+    ForgottenDetailsFormPage, PasswordSettings, PasswordChangeFormPage
 )
 from robots.models import Rule, DisallowedUrl
 from wagtail.models import Site
@@ -32,6 +32,7 @@ class Command(BaseCommand):
     def set_site(self, hostname: str, port: int):
         '''Set up the Wagtail `Site` object for BioKey.'''
 
+        self.stdout.write('Setting up Wagtail "Site" object')
         site = Site.objects.filter(is_default_site=True).first()
         site.site_name, site.hostname, site.port = 'BioKey', hostname, port
         site.save()
@@ -40,6 +41,8 @@ class Command(BaseCommand):
             return site, old_root
 
         mega_root = old_root.get_parent()
+
+        self.stdout.write('Creating home page')
         home_page = HomePage(
             title='BioKey', draft_title='🧬🔑 BioKey', seo_title=self._seo_title,
             search_description=self._description.strip(), live=True, slug=old_root.slug, path=old_root.path,
@@ -57,6 +60,7 @@ class Command(BaseCommand):
         return site, home_page
 
     def _set_robots_txt(self, site: Site):
+        self.stdout.write('Setting up robots.txt')
         DisallowedUrl.objects.all().delete()
         Rule.objects.all().delete()
 
@@ -73,23 +77,26 @@ class Command(BaseCommand):
         DirectoryInformationTree.objects.child_of(parent).delete()
         parent.refresh_from_db()
 
-        for slug, name, user_base, group_base in (
-            ('mcl', 'Consortium for Molecular and Cellular Characterization of Screen-Detected Lesions', 'ou=users,o=MCL', 'ou=groups,o=MCL'),
-            ('nist', 'National Institutes of Standards and Technology', 'ou=users,o=NIST', 'ou=groups,o=NIST'),
+        for slug, name, user_base, group_base, help_address in (
+            ('mcl', 'Consortium for Molecular and Cellular Characterization of Screen-Detected Lesions', 'ou=users,o=MCL', 'ou=groups,o=MCL', 'ic-data@jpl.nasa.gov'),
+            ('nist', 'National Institutes of Standards and Technology', 'ou=users,o=NIST', 'ou=groups,o=NIST', 'ic-data@jpl.nasa.gov'),
         ):
+            self.stdout.write(f'Creating DIT for {name}')
             dit = DirectoryInformationTree(
                 title=name, manager_dn='uid=admin,ou=system', manager_password=password, uri=uri, slug=slug,
                 user_base=user_base, user_scope=ldap.SCOPE_ONELEVEL, group_base=group_base,
-                group_scope=ldap.SCOPE_ONELEVEL
+                group_scope=ldap.SCOPE_ONELEVEL, help_address=help_address
             )
             parent.add_child(instance=dit)
             dit.save()
             self.stdout.write(f'Added DIT for «{name}»')
 
+        self.stdout.write('Creating DIT for EDRN')
         dit = EDRNDirectoryInformationTree(
             title='Early Detection Research Network', manager_password=password, uri=uri, slug='edrn',
             user_base='dc=edrn,dc=jpl,dc=nasa,dc=gov', user_scope=ldap.SCOPE_ONELEVEL,
-            group_base='dc=edrn,dc=jpl,dc=nasa,dc=gov', group_scope=ldap.SCOPE_ONELEVEL
+            group_base='dc=edrn,dc=jpl,dc=nasa,dc=gov', group_scope=ldap.SCOPE_ONELEVEL,
+            help_address='edrn-ic@jpl.nasa.gov'
         )
         parent.add_child(instance=dit)
         self.stdout.write('Added DIT for «Early Detection Research Network»')
@@ -100,6 +107,12 @@ class Command(BaseCommand):
         )
         dit.add_child(instance=name_request)
         name_request.save()
+        changepw = PasswordChangeFormPage(
+            title='Change Password', slug='change-password',
+            intro=RichText("<p>To change your password, just fill out the form below. <a href='../forgotten'>Can't remember your current password or user ID</a>?")
+        )
+        dit.add_child(instance=changepw)
+        changepw.save()
         forgotten = ForgottenDetailsFormPage(
             title='EDRN: Forgotten Account Details', slug='forgotten',
             intro=RichText("<p>You can use this form if you've forgotten your password or even your username.</p>")
@@ -108,11 +121,13 @@ class Command(BaseCommand):
         forgotten.save()
 
     def _set_settings(self, site):
+        self.stdout.write('Creating email settings')
         email = EmailSettings.objects.get_or_create(site_id=site.id)[0]
         email.from_address = 'no-reply@jpl.nasa.gov'
         email.new_users_address = 'edrn-ic@jpl.nasa.gov'
         email.save()
 
+        self.stdout.write('Creating password settings')
         password = PasswordSettings.objects.get_or_create(site_id=site.id)[0]
         password.reset_window = 4320
         password.save()

@@ -2,7 +2,7 @@
 
 '''🧬🔑🕴️ BioKey user management: views.'''
 
-
+from . import PACKAGE_NAME
 from ._forgotten import ResetForgottenPasswordForm
 from ._ldap import get_account_by_uid, reset_password_in_dit
 from ._theme import bootstrap_form_widgets
@@ -72,7 +72,7 @@ def reset_password(request: HttpRequest, consortium: str, uid: str) -> HttpRespo
                 return HttpResponseNotFound(reason='consortium not found')
             reset_password_in_dit(dit, uid, form.cleaned_data['new_password'])
             return render(
-                request, 'jpl.edrn.biokey.usermgmt/password-reset-success.html',
+                request, PACKAGE_NAME + '/password-reset-success.html',
                 {'uid': uid, 'consortium': consortium.upper()}
             )
         else:

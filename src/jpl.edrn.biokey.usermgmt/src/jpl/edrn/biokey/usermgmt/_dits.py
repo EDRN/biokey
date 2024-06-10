@@ -5,6 +5,8 @@
 Note: we cannot import ._ldap up top here as it'll result in a circular dependency.
 '''
 
+from . import PACKAGE_NAME
+from .constants import MAX_EMAIL_LENGTH
 from ._settings import EmailSettings, PasswordSettings
 from ._paths import make_pwreset_url
 from .tasks import send_email
@@ -29,15 +31,23 @@ _scope_choices = {
 
 
 class DirectoryInformationTree(Page):
-    _requested_reset = '''To reset the password for account "{uid}", you'll need to visit the following link within {natural_delta}:
+    _requested_reset = '''Hello!
+
+Someone, perhaps you, requested a reset of the password for the account "{uid}".
+
+To reset the password for account "{uid}", you'll need to visit the following link within {natural_delta}:
 
 {link}
 
 Please note that link will expire on {expiration_time} (UTC). If you can't visit the link in that time, simply return to {url} and restart the forgotten password process.
 
+Note that if you did not request to reset the password, then simply ignore this email.
+
 Thank you.
 '''
-    _created_account = '''Your account, "{uid}", has been created for the {consortium}. To set the password for this account, you'll need to visit the following link within {natural_delta}:
+    _created_account = '''Hello!
+
+Your account, "{uid}", has been created for the {consortium}. To set the password for this account, you'll need to visit the following link within {natural_delta}:
 
 {link}
 
@@ -46,7 +56,20 @@ Please note that this link will expire on {expiration_time} (UTC). If you can't 
 Thank you.
 '''
 
-    template = 'jpl.edrn.biokey.usermgmt/dit.html'
+    _requested_uid = '''Hello!
+
+Someone, perhaps you, asked for the username for the {consortium} account that goes with this email address.
+
+The username is: {uid}
+
+You can visit {url} to change the password for "{uid}" (if you know it), or reset the password (if forgotten).
+
+Note that if you did not request this, then simply ignore this email.
+
+Thank you.
+'''
+
+    template = PACKAGE_NAME + '/dit.html'
     page_description = 'A single data information tree within LDAP in which users and groups are found'
     search_auto_update = False
 
@@ -73,11 +96,19 @@ Thank you.
         blank=False, help_text='Search scope for groups', default=ldap.SCOPE_ONELEVEL, choices=_scope_choices.items()
     )
     creation_email_template = models.TextField(
-        blank=True, help_text="Email template for end users' newly-created accounts", default=_created_account
+        blank=False, help_text="Email template for end users' newly-created accounts", default=_created_account
     )
     reset_request_email_template = models.TextField(
-        blank=True, help_text="Email template for end users' requests to reset their passwords",
+        blank=False, help_text="Email template for end users' requests to reset their passwords",
         default=_requested_reset
+    )
+    forgotten_uid_template = models.TextField(
+        blank=False, help_text="Email template for end users' to recover forgotten usernames, not forgotten passwords",
+        default=_requested_uid
+    )
+    help_address = models.EmailField(
+        blank=False, max_length=MAX_EMAIL_LENGTH, help_text='Email address if users need help',
+        default='help@email.address',
     )
 
     content_panels = Page.content_panels + [
@@ -88,8 +119,10 @@ Thank you.
         FieldPanel('user_scope'),
         FieldPanel('group_base'),
         FieldPanel('group_scope'),
+        FieldPanel('help_address'),
         FieldPanel('creation_email_template'),
         FieldPanel('reset_request_email_template'),
+        FieldPanel('forgotten_uid_template'),
     ]
 
     def get_context(self, request: HttpRequest, *args, **kwargs) -> dict:
@@ -99,6 +132,8 @@ Thank you.
         context['group_scope'] = _scope_choices[self.group_scope]
         sign_up = self.get_children().filter(slug='sign-up').first()
         if sign_up: context['sign_up'] = sign_up.url
+        changepw = self.get_children().filter(slug='change-password').first()
+        if changepw: context['changepw'] = changepw.url
         forgotten = self.get_children().filter(slug='forgotten').first()
         if forgotten: context['forgotten'] = forgotten.url
         return context
@@ -149,10 +184,19 @@ Thank you.
         )
         return account_name
 
+    def send_uid_reminders(self, accounts: list[dict], request: HttpRequest):
+        delay, consortium, settings = 0, self.slug.upper(), EmailSettings.for_site(Site.find_for_request(request))
+        subject = f'Your {consortium} account username'
+        for account in accounts:
+            email, uid = account['email'], account['uid']
+            message = self.forgotten_uid_template.format(consortium=consortium, url=self.full_url, uid=uid)
+            send_email(settings.from_address, [email], subject, message, attachment=None, delay=delay)
+            delay += 2
+
 
 class EDRNDirectoryInformationTree(DirectoryInformationTree):
     page_description = 'A data information tree with users backed by the DMCC'
-    template = 'jpl.edrn.biokey.usermgmt/dit.html'
+    template = PACKAGE_NAME + '/dit.html'
 
     _dmcc_reset = '''Your account, "{uid}" is managed the Data Management and Coordinating Center (DMCC) of the Early Detection Research Network.
 

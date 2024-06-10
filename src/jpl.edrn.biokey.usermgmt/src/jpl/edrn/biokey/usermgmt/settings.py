@@ -2,6 +2,8 @@
 
 '''🧬🔑🕴️ BioKey user management: settings.'''
 
+from . import PACKAGE_NAME
+
 
 # Migration Modules
 #
@@ -11,5 +13,5 @@
 # 🔗 https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
 
 MIGRATION_MODULES = {
-    'jpl.edrn.biokey.usermgmt': 'jpl.edrn.biokey.usermgmt.migrations'
+    PACKAGE_NAME: PACKAGE_NAME + '.migrations'
 }

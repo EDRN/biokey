@@ -6,7 +6,6 @@
 from ._dits import DirectoryInformationTree
 from .constants import MAX_EMAIL_LENGTH
 from contextlib import contextmanager
-from wagtail.models import Site
 import logging, ldap, random, re, string, hashlib, base64, ldap.modlist, json, datetime, os
 
 
@@ -37,11 +36,13 @@ def _ldap_to_dict(search_result: tuple) -> dict:
     dn, d = search_result
     desc = d['description'][0].decode('utf-8')
     biokey_match, biokey = _biokey_json_re.match(desc), None
-    if biokey_match:
+    if biokey_match and biokey_match.group(3):
         try:
             biokey = json.loads(biokey_match.group(3))
         except json.JSONDecodeError as ex:
             _logger.warning('Corrupted biokey json in %s: %s', dn, ex.msg)
+    else:
+        biokey = {}
     attributes = {
         'dn': dn,
         'email': d['mail'][0].decode('utf-8'),
@@ -68,14 +69,19 @@ def ldap_connection(dit: DirectoryInformationTree):
         if connection is not None: del connection
 
 
+def _hash_password(password: str) -> bytes:
+    '''Hash the given `password` using SHA and encoded into bytes suitable for LDAP.'''
+    hasher = hashlib.new('sha1', password.encode('utf-8'))
+    hashed_password = '{SHA}' + base64.b64encode(hasher.digest()).decode('ascii')
+    return hashed_password.encode('utf-8')
+
+
 def generate_random_ldap_password() -> bytes:
     # What I used in lpdautils:
     pw = ''.join(random.sample(_random_password_corpus, _random_password_length)).encode('utf-8')
     # What I originally came up with:
     # pw = ''.join(random.choices(_random_password_corpus, k=_random_password_length)).encode('utf-8')
-    hasher = hashlib.new('sha1', pw)
-    hashed_password = '{SHA}' + base64.b64encode(hasher.digest()).decode('ascii')
-    return hashed_password.encode('utf-8')
+    return _hash_password(pw)
 
 
 def get_potential_accounts(fn: str, ln: str, dit: DirectoryInformationTree) -> list:
@@ -178,9 +184,12 @@ def get_account_by_uid(uid: str, dit: DirectoryInformationTree) -> dict:
 
 def get_accounts_by_email(email: str, dit: DirectoryInformationTree) -> list:
     _logger.info('Looking up EDRN accounts by email «%s»', email)
+    accounts = []
     with ldap_connection(dit) as connection:
-        results = connection.search_s(dit.user_base, dit.user_scope, f'(uid={email})')
-        raise NotImplementedError('fix this too')
+        results = connection.search_s(dit.user_base, dit.user_scope, f'(mail={email})')
+        for i in results:
+            accounts.append(_ldap_to_dict(i))
+        return accounts
 
 
 def reset_password_in_dit(dit: DirectoryInformationTree, uid: str, new_password: str):
@@ -196,10 +205,7 @@ def reset_password_in_dit(dit: DirectoryInformationTree, uid: str, new_password:
         except KeyError:
             pass
     description = _update_biokey_description(account, biokey)
-
-    hasher = hashlib.new('sha1', new_password.encode('utf-8'))
-    hashed_password = '{SHA}' + base64.b64encode(hasher.digest()).decode('ascii')
-    pw = hashed_password.encode('utf-8')
+    pw = _hash_password(new_password)
 
     with ldap_connection(dit) as connection:
         modlist = [
@@ -207,3 +213,23 @@ def reset_password_in_dit(dit: DirectoryInformationTree, uid: str, new_password:
             (ldap.MOD_REPLACE, 'userPassword', [pw])
         ]
         connection.modify_s(account['dn'], modlist)
+
+
+def verify_password(dit: DirectoryInformationTree, uid: str, password: str) -> bool:
+    '''Check if `uid` has valid `password` in the LDAP of `dit`.'''
+    dn = f'uid={uid},{dit.user_base}'
+    with ldap_connection(dit) as connection:
+        try:
+            connection.bind_s(dn, password)
+            return True
+        except ldap.INVALID_CREDENTIALS:
+            pass
+    return False
+
+
+def change_password(dit: DirectoryInformationTree, uid: str, password: str):
+    '''Change the password in the directory represented by `dit` for `uid` to `password`.'''
+    dn = f'uid={uid},{dit.user_base}'
+    with ldap_connection(dit) as connection:
+        modlist = [(ldap.MOD_REPLACE, 'userPassword', [_hash_password(password)])]
+        connection.modify_s(dn, modlist)

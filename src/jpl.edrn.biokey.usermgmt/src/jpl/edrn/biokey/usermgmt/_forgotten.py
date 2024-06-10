@@ -3,6 +3,7 @@
 '''🧬🔑🕴️ BioKey user management: forgotten details form.'''
 
 
+from . import PACKAGE_NAME
 from ._forms import AbstractForm, AbstractFormPage
 from ._ldap import get_account_by_uid, get_accounts_by_email
 from .constants import MAX_UID_LENGTH, MAX_EMAIL_LENGTH, MAX_PASSWORD_LENGTH, GENERIC_FORM_TEMPLATE
@@ -44,12 +45,17 @@ class ForgottenDetailsFormPage(AbstractFormPage):
                     account = get_account_by_uid(uid, dit)
                     # If account is found or not, tell the user the process has begun anyway; this
                     # prevents information leakage about which are known account names.
-                    params = {'page': self, 'uid': uid}
+                    params = {'page': self, 'uid': uid, 'us': dit.help_address}
                     if account:
                         dit.send_reset_email(account, request)
-                    return render(request, 'jpl.edrn.biokey.usermgmt/password-reset-email-sent.html', params)
+                    return render(request, PACKAGE_NAME + '/password-reset-email-sent.html', params)
                 elif email:
-                    account = get_accounts_by_email(email, dit)
+                    accounts = get_accounts_by_email(email, dit)
+                    # If accounts are found or not, tell the user we've sent the reminders by email.
+                    # As with the `uid` case, this prevents the leakage of known email addresses.
+                    dit.send_uid_reminders(accounts, request)
+                    params = {'page': self, 'email': email, 'dit': dit}
+                    return render(request, PACKAGE_NAME + '/uid-reminder-email-sent.html', params)
         else:
             form = ForgottenDetailsForm(page=self)
         self._bootstrap(form)
@@ -68,3 +74,4 @@ class ResetForgottenPasswordForm(AbstractForm):
         cleaned_data = super().clean()
         n, c = cleaned_data.get('new_password'), cleaned_data.get('confirm_new_password')
         if n != c: raise ValidationError('Passwords do not match')
+        return cleaned_data
