@@ -94,6 +94,12 @@ services:
             POSTGRES_PASSWORD:
             LDAP_URI:
             SIGNING_KEY:
+            EMAIL_HOST:
+            EMAIL_PORT:
+            EMAIL_HOST_USER:
+            EMAIL_HOST_PASSWORD:
+            EMAIL_USE_TLS:
+            EMAIL_USE_SSL:
             # The rest are fine or have fine defaults
             ALLOWED_HOSTS: ${ALLOWED_HOSTS:-.jpl.nasa.gov}
             CACHE_URL: redis://cache
@@ -126,6 +132,12 @@ services:
             LDAP_URI:
             POSTGRES_PASSWORD:
             SIGNING_KEY:
+            EMAIL_HOST:
+            EMAIL_PORT:
+            EMAIL_HOST_USER:
+            EMAIL_HOST_PASSWORD:
+            EMAIL_USE_TLS:
+            EMAIL_USE_SSL:
             # This must be provided in .env or by host, but is only used during the
             # `exec app /app/bin/django-admin biokey_bloom` step:
             DEFAULT_LDAP_SERVER_PASSWORD:
