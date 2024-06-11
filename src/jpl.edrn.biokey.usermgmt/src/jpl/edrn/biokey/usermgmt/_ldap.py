@@ -78,7 +78,7 @@ def _hash_password(password: str) -> bytes:
 
 def generate_random_ldap_password() -> bytes:
     # What I used in lpdautils:
-    pw = ''.join(random.sample(_random_password_corpus, _random_password_length)).encode('utf-8')
+    pw = ''.join(random.sample(_random_password_corpus, _random_password_length))
     # What I originally came up with:
     # pw = ''.join(random.choices(_random_password_corpus, k=_random_password_length)).encode('utf-8')
     return _hash_password(pw)

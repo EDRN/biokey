@@ -6,10 +6,11 @@ Note: we cannot import ._ldap up top here as it'll result in a circular dependen
 '''
 
 from . import PACKAGE_NAME
-from .constants import MAX_EMAIL_LENGTH
-from ._settings import EmailSettings, PasswordSettings
 from ._paths import make_pwreset_url
+from ._settings import EmailSettings, PasswordSettings
+from .constants import MAX_EMAIL_LENGTH
 from .tasks import send_email
+from captcha.fields import ReCaptchaField
 from django import forms
 from django.core.validators import URLValidator
 from django.db import models
@@ -193,12 +194,17 @@ Thank you.
             send_email(settings.from_address, [email], subject, message, attachment=None, delay=delay)
             delay += 2
 
+    def change_password(self, uid: str, new_password: str) -> str | None:
+        from ._ldap import change_password
+        change_password(self, uid, new_password)
+        return None
+
 
 class EDRNDirectoryInformationTree(DirectoryInformationTree):
     page_description = 'A data information tree with users backed by the DMCC'
     template = PACKAGE_NAME + '/dit.html'
 
-    _dmcc_reset = '''Your account, "{uid}" is managed the Data Management and Coordinating Center (DMCC) of the Early Detection Research Network.
+    _dmcc_reset = '''Your account, "{uid}", is managed the Data Management and Coordinating Center (DMCC) of the Early Detection Research Network.
 
 To reset the password on this account, please visit the DMCC website at this address:
 
@@ -235,3 +241,10 @@ Thank you.
         else:
             # It's one of "our own"
             super().send_reset_email(account, request)
+
+    def change_password(self, uid: str, new_password: str) -> str | None:
+        from ._ldap import get_account_by_uid
+        account = get_account_by_uid(uid, self)
+        if account.get('desc', '').startswith('imported via EDRN dmccsync'):
+            return PACKAGE_NAME + '/dmcc-password-change-required.html'
+        return super().change_password(uid, new_password)

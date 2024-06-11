@@ -3,8 +3,9 @@
 '''🧬🔑🕴️ BioKey user management: forms.'''
 
 from . import PACKAGE_NAME
-from .constants import GENERIC_FORM_TEMPLATE
 from ._theme import bootstrap_form_widgets
+from .constants import GENERIC_FORM_TEMPLATE
+from captcha.fields import ReCaptchaField
 from django import forms
 from django.forms.utils import ErrorList
 from django.http import HttpRequest, HttpResponse

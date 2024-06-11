@@ -4,8 +4,9 @@
 
 from . import PACKAGE_NAME
 from ._forms import AbstractForm, AbstractFormPage
-from ._ldap import verify_password, change_password
+from ._ldap import verify_password
 from .constants import MAX_UID_LENGTH, MAX_PASSWORD_LENGTH, GENERIC_FORM_TEMPLATE
+from captcha.fields import ReCaptchaField
 from django import forms
 from django.core.exceptions import ValidationError
 from django.http import HttpRequest, HttpResponse
@@ -45,9 +46,11 @@ class PasswordChangeFormPage(AbstractFormPage):
             if form.is_valid():
                 dit = self.get_parent().specific
                 uid, newpw = form.cleaned_data['uid'], form.cleaned_data['new_password']
-                change_password(dit, uid, newpw)
+                template = dit.change_password(uid, newpw)
+                if not template:
+                    template = PACKAGE_NAME + '/password-changed.html'
                 params = {'page': self, 'uid': uid, 'consortium': dit.slug.upper()}
-                return render(request, PACKAGE_NAME + '/password-changed.html', params)
+                return render(request, template, params)
         else:
             form = PasswordChangeForm(page=self)
         self._bootstrap(form)
