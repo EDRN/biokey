@@ -72,35 +72,7 @@ class Command(BaseCommand):
         url.save()
         rule.save()
 
-    def _add_dits(self, parent, uri, password):
-        self.stdout.write('Deleting any existing DITs')
-        DirectoryInformationTree.objects.child_of(parent).delete()
-        parent.refresh_from_db()
-
-        for slug, name, user_base, group_base, help_address in (
-            ('mcl', 'Consortium for Molecular and Cellular Characterization of Screen-Detected Lesions', 'ou=users,o=MCL', 'ou=groups,o=MCL', 'ic-data@jpl.nasa.gov'),
-            ('nist', 'National Institutes of Standards and Technology', 'ou=users,o=NIST', 'ou=groups,o=NIST', 'ic-data@jpl.nasa.gov'),
-        ):
-            self.stdout.write(f'Creating DIT for {name}')
-            dit = DirectoryInformationTree(
-                title=name, manager_dn='uid=admin,ou=system', manager_password=password, uri=uri, slug=slug,
-                user_base=user_base, user_scope=ldap.SCOPE_ONELEVEL, group_base=group_base,
-                group_scope=ldap.SCOPE_ONELEVEL, help_address=help_address
-            )
-            parent.add_child(instance=dit)
-            dit.save()
-            self.stdout.write(f'Added DIT for «{name}»')
-
-        self.stdout.write('Creating DIT for EDRN')
-        dit = EDRNDirectoryInformationTree(
-            title='Early Detection Research Network', manager_password=password, uri=uri, slug='edrn',
-            user_base='dc=edrn,dc=jpl,dc=nasa,dc=gov', user_scope=ldap.SCOPE_ONELEVEL,
-            group_base='dc=edrn,dc=jpl,dc=nasa,dc=gov', group_scope=ldap.SCOPE_ONELEVEL,
-            help_address='edrn-ic@jpl.nasa.gov'
-        )
-        parent.add_child(instance=dit)
-        self.stdout.write('Added DIT for «Early Detection Research Network»')
-        dit.save()
+    def _add_forms_to_dit(self, dit):
         name_request = NameRequestFormPage(
             title="EDRN Sign Up", slug='sign-up',
             intro=RichText("<p>To get started, let's get your details.</p>")
@@ -119,6 +91,38 @@ class Command(BaseCommand):
         )
         dit.add_child(instance=forgotten)
         forgotten.save()
+
+    def _add_dits(self, parent, uri, password):
+        self.stdout.write('Deleting any existing DITs')
+        DirectoryInformationTree.objects.child_of(parent).delete()
+        parent.refresh_from_db()
+
+        for slug, name, user_base, group_base, help_address in (
+            ('mcl', 'Consortium for Molecular and Cellular Characterization of Screen-Detected Lesions', 'ou=users,o=MCL', 'ou=groups,o=MCL', 'ic-data@jpl.nasa.gov'),
+            ('nist', 'National Institutes of Standards and Technology', 'ou=users,o=NIST', 'ou=groups,o=NIST', 'ic-data@jpl.nasa.gov'),
+        ):
+            self.stdout.write(f'Creating DIT for {name}')
+            dit = DirectoryInformationTree(
+                title=name, manager_dn='uid=admin,ou=system', manager_password=password, uri=uri, slug=slug,
+                user_base=user_base, user_scope=ldap.SCOPE_ONELEVEL, group_base=group_base,
+                group_scope=ldap.SCOPE_ONELEVEL, help_address=help_address
+            )
+            parent.add_child(instance=dit)
+            self._add_forms_to_dit(dit)
+            dit.save()
+            self.stdout.write(f'Added DIT for «{name}»')
+
+        self.stdout.write('Creating DIT for EDRN')
+        dit = EDRNDirectoryInformationTree(
+            title='Early Detection Research Network', manager_password=password, uri=uri, slug='edrn',
+            user_base='dc=edrn,dc=jpl,dc=nasa,dc=gov', user_scope=ldap.SCOPE_ONELEVEL,
+            group_base='dc=edrn,dc=jpl,dc=nasa,dc=gov', group_scope=ldap.SCOPE_ONELEVEL,
+            help_address='edrn-ic@jpl.nasa.gov'
+        )
+        parent.add_child(instance=dit)
+        self._add_forms_to_dit(dit)
+        self.stdout.write('Added DIT for «Early Detection Research Network»')
+        dit.save()
 
     def _set_settings(self, site):
         self.stdout.write('Creating email settings')
