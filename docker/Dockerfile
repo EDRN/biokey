@@ -79,6 +79,8 @@ RUN \
     cd /app &&\
     : Get the static files ready &&\
     /sbin/su-exec biokey /usr/bin/env LDAP_BIND_PASSWORD=unused SIGNING_KEY=unused /app/bin/django-admin collectstatic --settings jpl.edrn.biokey.policy.settings.ops --no-input --clear --link &&\
+    : Get database migrations ready &&\
+    /usr/bin/env LDAP_BIND_PASSWORD=unused SIGNING_KEY=unused /app/bin/django-admin makemigrations --settings jpl.edrn.biokey.policy.settings.ops --no-input --scriptable &&\
     : Clean up clean up everybody everywhere &&\
     : PrismaCloud does not like pip to be in the image &&\
     /app/bin/pip3 uninstall --yes --quiet pip &&\
