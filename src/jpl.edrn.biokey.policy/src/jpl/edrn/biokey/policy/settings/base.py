@@ -8,6 +8,7 @@ import jpl.edrn.biokey.content.settings as content_settings
 import jpl.wagtail.bootstrap.settings as theme_settings
 import jpl.edrn.biokey.usermgmt.settings as usermgmt_settings
 
+
 # Installed Applications
 # ----------------------
 #
@@ -16,7 +17,7 @@ import jpl.edrn.biokey.usermgmt.settings as usermgmt_settings
 # 🔗 https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 
 
-INSTALLED_APPS = theme_settings.INSTALLED_APPS + content_settings.INSTALLED_APPS + [
+INSTALLED_APPS = theme_settings.INSTALLED_APPS + content_settings.INSTALLED_APPS + usermgmt_settings.INSTALLED_APPS + [
     'jpl.wagtail.bootstrap',
     'jpl.edrn.biokey.content',
     'jpl.edrn.biokey.usermgmt',

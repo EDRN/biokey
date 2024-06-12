@@ -15,3 +15,16 @@ from . import PACKAGE_NAME
 MIGRATION_MODULES = {
     PACKAGE_NAME: PACKAGE_NAME + '.migrations'
 }
+
+
+# Installed Applications
+# ----------------------
+#
+# The "apps" (Python packages) enabled for Django.
+#
+# 🔗 https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
+
+INSTALLED_APPS = [
+    'captcha',
+    'wagtailcaptcha',
+]
