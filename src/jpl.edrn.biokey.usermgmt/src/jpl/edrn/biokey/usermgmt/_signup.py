@@ -5,13 +5,11 @@
 
 from . import PACKAGE_NAME
 from ._forms import AbstractForm, AbstractFormPage
-from ._settings import EmailSettings
-from ._ldap import get_potential_accounts, create_new_account
+from ._ldap import get_potential_accounts
 from .constants import MAX_EMAIL_LENGTH, GENERIC_FORM_TEMPLATE
-from .tasks import send_email
-from wagtail.models import Site
 from captcha.fields import ReCaptchaField
 from django import forms
+from django.conf import settings
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
@@ -35,9 +33,8 @@ class AccountSignUpForm(NameRequestForm):
 
     do_sign_up = forms.CharField(initial='1', widget=forms.HiddenInput(), required=False)
 
-    # 🔮 CAPTCHA needed here
-    # if not settings.DEBUG:
-    #     captcha = ReCaptchaField()
+    if not settings.DEBUG:
+        captcha = ReCaptchaField()
 
 
 class NameRequestFormPage(AbstractFormPage):

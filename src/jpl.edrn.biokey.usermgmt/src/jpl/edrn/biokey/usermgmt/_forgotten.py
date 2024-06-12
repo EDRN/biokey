@@ -9,6 +9,7 @@ from ._ldap import get_account_by_uid, get_accounts_by_email
 from .constants import MAX_UID_LENGTH, MAX_EMAIL_LENGTH, MAX_PASSWORD_LENGTH, GENERIC_FORM_TEMPLATE
 from captcha.fields import ReCaptchaField
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
@@ -21,7 +22,8 @@ class ForgottenDetailsForm(AbstractForm):
         label='Email', required=False, max_length=MAX_EMAIL_LENGTH,
         help_text="Can't remember your user ID? Fill in your email address instead and we'll email your user ID to you."
     )
-    # 🔮 CAPTCHA?
+    if not settings.DEBUG:
+        captcha = ReCaptchaField()
 
     def clean(self):
         cleaned_data = super().clean()

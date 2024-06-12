@@ -138,6 +138,8 @@ services:
             EMAIL_HOST_PASSWORD:
             EMAIL_USE_TLS:
             EMAIL_USE_SSL:
+            RECAPTCHA_PUBLIC_KEY:
+            RECAPTCHA_PRIVATE_KEY:
             # This must be provided in .env or by host, but is only used during the
             # `exec app /app/bin/django-admin biokey_bloom` step:
             DEFAULT_LDAP_SERVER_PASSWORD:

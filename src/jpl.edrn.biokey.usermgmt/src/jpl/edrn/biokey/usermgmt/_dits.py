@@ -10,7 +10,6 @@ from ._paths import make_pwreset_url
 from ._settings import EmailSettings, PasswordSettings
 from .constants import MAX_EMAIL_LENGTH
 from .tasks import send_email
-from captcha.fields import ReCaptchaField
 from django import forms
 from django.core.validators import URLValidator
 from django.db import models

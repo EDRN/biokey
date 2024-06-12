@@ -8,6 +8,7 @@ from ._ldap import verify_password
 from .constants import MAX_UID_LENGTH, MAX_PASSWORD_LENGTH, GENERIC_FORM_TEMPLATE
 from captcha.fields import ReCaptchaField
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
@@ -24,7 +25,8 @@ class PasswordChangeForm(AbstractForm):
     confirm_new_password = forms.CharField(
         help_text='Confirm the new password', max_length=MAX_PASSWORD_LENGTH, widget=forms.PasswordInput()
     )
-    # 🔮 CAPTCHA?
+    if not settings.DEBUG:
+        captcha = ReCaptchaField()
 
     def clean(self):
         cleaned_data = super().clean()
