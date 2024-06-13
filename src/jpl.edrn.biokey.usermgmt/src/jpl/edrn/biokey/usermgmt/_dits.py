@@ -15,7 +15,7 @@ from django.core.validators import URLValidator
 from django.db import models
 from django.http import HttpRequest
 from django.utils import timezone
-from wagtail.admin.panels import FieldPanel
+from wagtail.admin.panels import FieldPanel, MultiFieldPanel, FieldRowPanel
 from wagtail.models import Page
 from wagtail.models import Site
 import ldap, logging, humanize, datetime
@@ -110,15 +110,29 @@ Thank you.
         blank=False, max_length=MAX_EMAIL_LENGTH, help_text='Email address if users need help',
         default='help@email.address',
     )
+    logo = models.ForeignKey(
+        'wagtailimages.Image', null=True, blank=True, on_delete=models.SET_NULL, related_name='dit_logo'
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel('uri'),
-        FieldPanel('manager_dn'),
-        FieldPanel('manager_password', widget=forms.PasswordInput),
-        FieldPanel('user_base'),
-        FieldPanel('user_scope'),
-        FieldPanel('group_base'),
-        FieldPanel('group_scope'),
+        FieldPanel('logo'),
+        MultiFieldPanel(heading='LDAP Manager', children=(
+            FieldRowPanel(children=(
+                FieldPanel('manager_dn'),
+                FieldPanel('manager_password', widget=forms.PasswordInput),
+            )),
+        )),
+        MultiFieldPanel(heading='Bases and Scopes', children=(
+            FieldRowPanel((
+                FieldPanel('user_base'),
+                FieldPanel('user_scope'),
+            )),
+            FieldRowPanel((
+                FieldPanel('group_base'),
+                FieldPanel('group_scope'),
+            )),
+        )),
         FieldPanel('help_address'),
         FieldPanel('creation_email_template'),
         FieldPanel('reset_request_email_template'),
