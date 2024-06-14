@@ -1,0 +1,89 @@
+{% load static biokey_theme_tags %}
+<footer class='px-5 border-top site-footer text-light'
+    style='background: url({% static "jpl.edrn.biokey.theme/images/hexagon-molecular-structure-footer.png" %}) no-repeat 100% 0, linear-gradient(45deg, #4659a5, #2f779d);'>
+    <div class='row py-3'>
+        <div class='division'>Jet Propulsion Laboratory<br/><small>at the California Institute of Technology</small></div>
+    </div>
+    <div class='row row-cols-4 mx-1'>
+        <div class='col'>
+            <div class='footer-menu-heading'>Follow JPL</div>
+            <ul class='nav list-inline'>
+                <li class='nav-item list-inline-item mb-2'>
+                    <a href='http://www.facebook.com/NASAJPL' class='nav-link p-0 text-light'>
+                        <i class='bi bi-facebook fs-3'></i>
+                        <span class='visually-hidden-focusable'>Facebook</span>
+                    </a>
+                </li>
+                <li class='nav-item list-inline-item mb-2'>
+                    <a href='http://instagram.com/nasajpl' class='nav-link p-0 text-light'>
+                        <i class='bi bi-instagram fs-3'></i>
+                        <span class='visually-hidden-focusable'>Instagram</span>
+                    </a>
+                </li>
+                <li class='nav-item list-inline-item mb-2'>
+                    <a href='http://www.youtube.com/user/JPLnews?sub_confirmation=1' class='nav-link p-0 text-light'>
+                        <i class='bi bi-youtube fs-3'></i>
+                        <span class='visually-hidden-focusable'>Youtube</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class='col'>
+            <div class='footer-menu-heading'>Contact</div>
+            <ul class='nav flex-column mb-2'>
+                <li class='nav-item'>
+                    <a class='nav-link p-0 text-light' href='mailto:edrn-ic@jpl.nasa.gov'>Contact Us</a>
+                </li>
+                <li class='nav-item'>
+                    <a class='nav-link p-0 text-light'
+                    href='https://www.jpl.nasa.gov/who-we-are/media-information/jpl-media-contacts'>Contact JPL</a>
+                </li>
+            </ul>
+        </div>
+        <div class='col'>
+            <div class='footer-menu-heading'>More Information</div>
+            <ul class='nav flex-column mb-2'>
+                <li class='nav-item'>
+                    <a class='nav-link p-0 text-light' href='https://www.jpl.nasa.gov/who-we-are'>Who We Are</a>
+                </li>
+                <li class='nav-item'>
+                    <a class='nav-link p-0 text-light' href='https://www.jpl.nasa.gov/who-we-are/executive-council'>
+                        Executive Council
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class='col'>
+            <div class='footer-menu-heading'>Policies</div>
+            <ul class='nav flex-column mb-2'>
+                <li class='nav-item'>
+                    <a class='nav-link p-0 text-light'
+                        href='https://www.jpl.nasa.gov/caltechjpl-privacy-policies-and-important-notices'>
+                        Privacy
+                    </a>
+                </li>
+                <li class='nav-item'>
+                    <a class='nav-link p-0 text-light' href='https://www.jpl.nasa.gov/jpl-image-use-policy'>
+                        Image Use
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class='row'>
+        <ul class='nav justify-content-center list-inline'>
+            <li class='nav-item list-inline-item footer-inline-item'><a href='https://www.jpl.nasa.gov/' class='nav-link px-2 text-light'>Jet Propulsion Laboratory</a></li>
+            <li class='nav-item list-inline-item footer-inline-item'><a href='https://www.nasa.gov/' class='nav-link px-2 text-light'>NASA</a></li>
+            <li class='nav-item list-inline-item footer-inline-item'><a href='https://www.caltech.edu/' class='nav-link px-2 text-light'>Caltech</a></li>
+        </ul>
+        <div class='text-center text-light small'>
+            {% biokey_colophon %}
+        </div>
+    </div>
+
+    <div class='row pb-1'>
+        <p class='text-end small'>Version {% biokey_site_version %}</p>
+    </div>
+</footer>
+{# -*- Django HTML -*- #}

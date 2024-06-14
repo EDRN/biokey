@@ -1,5 +1,5 @@
 [project]
-name = 'jpl.wagtail.bootstrap'
+name = 'jpl.edrn.biokey.theme'
 dynamic = ['version']
 requires-python = '>=3.11'
 dependencies = [
@@ -9,9 +9,9 @@ dependencies = [
 authors = [
     {name = 'Sean Kelly', email='kelly@seankelly.biz'}
 ]
-description = 'Quick and dirty Bootstrap-based theme for Wagtail'
+description = 'Wagtail theme for JPL EDRN BioKey application'
 readme = 'README.md'
-keywords = ['wagtail', 'bootstrap', 'theme']
+keywords = ['wagtail', 'bootstrap', 'theme', 'cancer', 'biomarker', 'password']
 classifiers = [
     'Development Status :: 2 - Pre-Alpha',
     'License :: OSI Approved :: Apache Software License',
@@ -34,7 +34,7 @@ Issues = 'https://github.com/EDRN/biokey/issues'
 
 
 [tool.hatch.version]
-path = 'src/jpl/wagtail/bootstrap/VERSION.txt'
+path = 'src/jpl/edrn/biokey/theme/VERSION.txt'
 pattern = '(?P<version>.+)'
 
 

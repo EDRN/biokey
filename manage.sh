@@ -22,8 +22,7 @@ if [ ! -d ".venv" ]; then
     echo "⚠️ Local Python virtual environment missing; attempting to re-create it" 1>&2
     python3.11 -m venv .venv
     .venv/bin/pip install --quiet --upgrade setuptools pip wheel build
-    # 🔮 TODO: move jpl.wagtail.bootstrap to a separate top-level repository
-    .venv/bin/pip install --editable src/jpl.wagtail.bootstrap[dev]
+    .venv/bin/pip install --editable src/jpl.edrn.biokey.theme[dev]
     .venv/bin/pip install --editable src/jpl.edrn.biokey.streams[dev]
     .venv/bin/pip install --editable src/jpl.edrn.biokey.content[dev]
     .venv/bin/pip install --editable src/jpl.edrn.biokey.usermgmt[dev]

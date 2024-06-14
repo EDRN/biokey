@@ -5,7 +5,7 @@
 from .ldap import *  # noqa: F401, F403
 import dj_database_url, os
 import jpl.edrn.biokey.content.settings as content_settings
-import jpl.wagtail.bootstrap.settings as theme_settings
+import jpl.edrn.biokey.theme.settings as theme_settings
 import jpl.edrn.biokey.usermgmt.settings as usermgmt_settings
 
 
@@ -18,7 +18,7 @@ import jpl.edrn.biokey.usermgmt.settings as usermgmt_settings
 
 
 INSTALLED_APPS = theme_settings.INSTALLED_APPS + content_settings.INSTALLED_APPS + usermgmt_settings.INSTALLED_APPS + [
-    'jpl.wagtail.bootstrap',
+    'jpl.edrn.biokey.theme',
     'jpl.edrn.biokey.content',
     'jpl.edrn.biokey.usermgmt',
 

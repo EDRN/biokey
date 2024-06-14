@@ -8,6 +8,7 @@ from jpl.edrn.biokey.usermgmt.models import (
     DirectoryInformationTree, EDRNDirectoryInformationTree, NameRequestFormPage, EmailSettings,
     ForgottenDetailsFormPage, PasswordSettings, PasswordChangeFormPage
 )
+from jpl.edrn.biokey.theme.models import ColophonSettings
 
 from django.conf import settings
 from django.core.files.images import ImageFile
@@ -149,6 +150,10 @@ class Command(BaseCommand):
         password = PasswordSettings.objects.get_or_create(site_id=site.id)[0]
         password.reset_window = 4320
         password.save()
+
+        self.stdout.write('Creating colophon settings')
+        colophon = ColophonSettings.objects.get_or_create(site_id=site.id)[0]
+        colophon.save()
 
     def handle(self, *args, **options):
         self.stdout.write('Blooming "BioKey" site')

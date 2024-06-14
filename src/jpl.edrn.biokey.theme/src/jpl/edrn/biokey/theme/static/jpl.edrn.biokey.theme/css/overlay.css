@@ -1,0 +1,92 @@
+@charset "UTF-8";
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Noto+Sans&display=swap');
+
+body {
+    font-family: "Noto Sans", "Century Gothic", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+    color: #454545;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-family: Montserrat, "Avant Garde", Arial, sans-serif;
+    font-weight: 700;
+    color: #606060;
+}
+h1 {
+    font-size: 28px;
+    line-height: 30.8px;
+}
+h2 {
+    font-size: 23px;
+    line-height: 28px;
+}
+h3 {
+    font-size: 20px;
+    line-height: 25px;
+}
+h4 {
+    font-size: 18px;
+    line-height: 24px;
+}
+h5 {
+    font-size: 16px;
+    line-height: 21px;
+}
+h6 {
+    font-size: 16px;
+    line-height: 18px;
+}
+a {
+    color: #00527d;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+.full-width {
+    /* Reproduced from bootstrap */
+    max-width: 100%;
+    height: auto;
+    padding: 1rem 0;
+}
+.right {
+    float: right;
+    padding: 1rem;
+}
+.left {
+    float: left;
+    padding: 1rem;
+}
+label.is-required:before, legend.is-required:before {
+    content: "✱";
+    color: red;
+}
+label.is-required {
+    margin-bottom: 0.5rem;
+}
+legend {
+    font-size: 16px;
+}
+
+
+.site-footer {
+    color: white;
+    font-family: "Noto Sans", "Century Gothic", Arial,sans-serif;
+    text-align: left;
+    -webkit-font-smoothing: antialiased;
+}
+.site-footer p {
+    font-family: "Noto Sans", "Century Gothic", Arial, sans-serif !important;
+}
+.site-footer .division, .site-footer .footer-menu-heading {
+    font-weight: bold;
+    font-family: Montserrat, "Avant Garde", Arial, sans-serif;
+}
+.site-footer .division, .site-footer .footer-menu-heading {
+    color: white;
+}
+.footer-menu-heading {
+    text-transform: uppercase;
+    font-weight: normal;
+}

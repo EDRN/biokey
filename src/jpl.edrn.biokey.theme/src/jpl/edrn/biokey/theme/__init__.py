@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-'''🚀👢🎨 Quick and dirty Bootstrap theme.'''
+'''🧬🔑🎨 Biokey: look/feel/skin/theme.'''
 
 import importlib.resources
 

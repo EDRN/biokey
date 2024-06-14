@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-'''🚀👢🎨 Quick and dirty Bootstrap theme: settings.'''
+'''🧬🔑🎨 Biokey: look/feel/skin/theme: settings.'''
 
 
 # Installed Applications
@@ -21,7 +21,7 @@ INSTALLED_APPS = []
 # 🔗 https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
 
 MIGRATION_MODULES = {
-    'jpl.wagtail.bootstrap': 'jpl.wagtail.bootstrap.migrations'
+    'jpl.edrn.biokey.theme': 'jpl.edrn.biokey.theme.migrations'
 }
 
 
@@ -37,7 +37,7 @@ MIGRATION_MODULES = {
 # 
 # TEMPLATES = [
 #     {
-#         'NAME': 'jpl.wagtail.bootstrap',
+#         'NAME': 'jpl.edrn.biokey.theme',
 #         'BACKEND': 'django.template.backends.django.DjangoTemplates',
 #         'DIRS': [],
 #         'APP_DIRS': True,

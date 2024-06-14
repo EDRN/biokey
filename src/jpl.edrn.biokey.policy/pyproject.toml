@@ -3,7 +3,7 @@ name = 'jpl.edrn.biokey.policy'
 dynamic = ['version']
 requires-python = '>=3.11'
 dependencies = [
-    'jpl.wagtail.bootstrap',
+    'jpl.edrn.biokey.theme',
     'jpl.edrn.biokey.content',
     'jpl.edrn.biokey.usermgmt',
     'celery[redis]         ~= 5.2.7',

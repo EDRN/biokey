@@ -7,7 +7,7 @@
 {% block content %}
 
     {% if page.logo %}
-        <div class='row'>
+        <div class='row mt-2 mb-3'>
             <div class='col-auto'>
                 {% image page.logo max-960x100 as the_logo %}
                 <img src='{{the_logo.url}}' alt='Logo of {{page.title}}'/>
@@ -15,7 +15,7 @@
         </div>
     {% endif %}
 
-    <div class='row'>
+    <div class='row mb-2'>
         <div class='col-md-12 offset-md-0'>
             <h1>{{page.page_title}}</h1>
         </div>
