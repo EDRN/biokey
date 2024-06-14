@@ -73,6 +73,9 @@ Thank you.
     page_description = 'A single data information tree within LDAP in which users and groups are found'
     search_auto_update = False
 
+    page_title = models.CharField(
+        blank=False, null=False, default='Page title', max_length=255, help_text='Title to put at the top of the page'
+    )
     uri = models.CharField(
         blank=False, max_length=200, help_text='URI to the LDAP server as an "ldap:" or "ldaps: URL',
         validators=[URLValidator(schemes=['ldap', 'ldaps'])]
@@ -115,8 +118,9 @@ Thank you.
     )
 
     content_panels = Page.content_panels + [
-        FieldPanel('uri'),
+        FieldPanel('page_title'),
         FieldPanel('logo'),
+        FieldPanel('uri'),
         MultiFieldPanel(heading='LDAP Manager', children=(
             FieldRowPanel(children=(
                 FieldPanel('manager_dn'),
@@ -208,9 +212,18 @@ Thank you.
             delay += 2
 
     def change_password(self, uid: str, new_password: str) -> str | None:
+        '''Change the password for `uid` to `new_password`.
+
+        Return None if it worked, or a string message if it didn't. This implementation
+        always returns None.
+        '''
         from ._ldap import change_password
         change_password(self, uid, new_password)
         return None
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls._meta.get_field('title').help_text = 'Name of this Directory Information Tree (consortium name)'
 
 
 class EDRNDirectoryInformationTree(DirectoryInformationTree):

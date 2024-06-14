@@ -3,17 +3,20 @@
 '''🧬🔑 BioKey: site bloomer.'''
 
 
-from django.conf import settings
-from django.core.management.base import BaseCommand
 from jpl.edrn.biokey.content.models import HomePage
 from jpl.edrn.biokey.usermgmt.models import (
     DirectoryInformationTree, EDRNDirectoryInformationTree, NameRequestFormPage, EmailSettings,
     ForgottenDetailsFormPage, PasswordSettings, PasswordChangeFormPage
 )
+
+from django.conf import settings
+from django.core.files.images import ImageFile
+from django.core.management.base import BaseCommand
 from robots.models import Rule, DisallowedUrl
+from wagtail.images.models import Image
 from wagtail.models import Site
 from wagtail.rich_text import RichText
-import argparse, os, ldap
+import argparse, os, ldap, importlib.resources
 
 
 class Command(BaseCommand):
@@ -92,35 +95,46 @@ class Command(BaseCommand):
         dit.add_child(instance=forgotten)
         forgotten.save()
 
+    def _add_logo(self, dit: DirectoryInformationTree, logo_fn: str):
+        from . import data
+        with importlib.resources.open_binary(data, logo_fn) as io:
+            image_file = ImageFile(io, name=dit.slug.upper())
+            image = Image(title=dit.title, file=image_file)
+            image.save()
+            dit.logo = image
+
     def _add_dits(self, parent, uri, password):
         self.stdout.write('Deleting any existing DITs')
         DirectoryInformationTree.objects.child_of(parent).delete()
         parent.refresh_from_db()
 
-        for slug, name, user_base, group_base, help_address in (
-            ('mcl', 'Consortium for Molecular and Cellular Characterization of Screen-Detected Lesions', 'ou=users,o=MCL', 'ou=groups,o=MCL', 'ic-data@jpl.nasa.gov'),
-            ('nist', 'National Institutes of Standards and Technology', 'ou=users,o=NIST', 'ou=groups,o=NIST', 'ic-data@jpl.nasa.gov'),
+        for slug, name, title, user_base, group_base, help_address, logo_fn in (
+            ('mcl', 'Consortium for Molecular and Cellular Characterization of Screen-Detected Lesions', 'MCL Password Management', 'ou=users,o=MCL', 'ou=groups,o=MCL', 'ic-data@jpl.nasa.gov', 'mcl.png'),
+            ('nist', 'National Institutes of Standards and Technology', 'NIST Password Management', 'ou=users,o=NIST', 'ou=groups,o=NIST', 'ic-data@jpl.nasa.gov', 'nist.png'),
         ):
             self.stdout.write(f'Creating DIT for {name}')
             dit = DirectoryInformationTree(
-                title=name, manager_dn='uid=admin,ou=system', manager_password=password, uri=uri, slug=slug,
-                user_base=user_base, user_scope=ldap.SCOPE_ONELEVEL, group_base=group_base,
+                title=name, page_title=title, manager_dn='uid=admin,ou=system', manager_password=password, uri=uri,
+                slug=slug, user_base=user_base, user_scope=ldap.SCOPE_ONELEVEL, group_base=group_base,
                 group_scope=ldap.SCOPE_ONELEVEL, help_address=help_address
             )
             parent.add_child(instance=dit)
             self._add_forms_to_dit(dit)
+            self._add_logo(dit, logo_fn)
             dit.save()
             self.stdout.write(f'Added DIT for «{name}»')
 
         self.stdout.write('Creating DIT for EDRN')
         dit = EDRNDirectoryInformationTree(
             title='Early Detection Research Network', manager_password=password, uri=uri, slug='edrn',
+            page_title='EDRN Password Management',
             user_base='dc=edrn,dc=jpl,dc=nasa,dc=gov', user_scope=ldap.SCOPE_ONELEVEL,
             group_base='dc=edrn,dc=jpl,dc=nasa,dc=gov', group_scope=ldap.SCOPE_ONELEVEL,
             help_address='edrn-ic@jpl.nasa.gov'
         )
         parent.add_child(instance=dit)
         self._add_forms_to_dit(dit)
+        self._add_logo(dit, 'edrn.png')
         self.stdout.write('Added DIT for «Early Detection Research Network»')
         dit.save()
 
