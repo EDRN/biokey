@@ -75,12 +75,33 @@ RUN : &&\
 COPY --chown=biokey:biokey ./dist/*.whl /app/wheels/
 RUN /app/bin/pip3 install --progress-bar off /app/wheels/*.whl
 
-RUN \
+RUN :&&\
     cd /app &&\
     : Get the static files ready &&\
     /sbin/su-exec biokey /usr/bin/env LDAP_BIND_PASSWORD=unused SIGNING_KEY=unused /app/bin/django-admin collectstatic --settings jpl.edrn.biokey.policy.settings.ops --no-input --clear --link &&\
-    : Get database migrations ready &&\
+    :
+
+RUN :&&\
+    : Get database migrations ready and no I have no idea why we have to do wagtailcore first &&\
+    /usr/bin/env LDAP_BIND_PASSWORD=unused SIGNING_KEY=unused /app/bin/django-admin makemigrations --settings jpl.edrn.biokey.policy.settings.ops --no-input --scriptable wagtailcore &&\
+    :
+
+RUN :&&\
+    : Get database migrations ready and no I have no idea why we have to do wagtail_favicon first &&\
+    /usr/bin/env LDAP_BIND_PASSWORD=unused SIGNING_KEY=unused /app/bin/django-admin makemigrations --settings jpl.edrn.biokey.policy.settings.ops --no-input --scriptable wagtail_favicon &&\
+    :
+
+RUN :&&\
+    : Get database migrations ready and no I have no idea why we have to do robots first &&\
+    /usr/bin/env LDAP_BIND_PASSWORD=unused SIGNING_KEY=unused /app/bin/django-admin makemigrations --settings jpl.edrn.biokey.policy.settings.ops --no-input --scriptable robots &&\
+    :
+
+RUN :&&\
+    : =================== wtf ==================== &&\
     /usr/bin/env LDAP_BIND_PASSWORD=unused SIGNING_KEY=unused /app/bin/django-admin makemigrations --settings jpl.edrn.biokey.policy.settings.ops --no-input --scriptable &&\
+    :
+
+RUN \
     : Clean up clean up everybody everywhere &&\
     : PrismaCloud does not like pip to be in the image &&\
     /app/bin/pip3 uninstall --yes --quiet pip &&\

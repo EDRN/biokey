@@ -221,10 +221,6 @@ Thank you.
         change_password(self, uid, new_password)
         return None
 
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        cls._meta.get_field('title').help_text = 'Name of this Directory Information Tree (consortium name)'
-
 
 class EDRNDirectoryInformationTree(DirectoryInformationTree):
     page_description = 'A data information tree with users backed by the DMCC'

@@ -31,3 +31,5 @@ def biokey_site_version() -> str:
 def biokey_colophon(context: Context) -> dict:
     settings = ColophonSettings.for_site(Site.find_for_request(context['request']))
     return {'webmaster': settings.webmaster, 'manager': settings.site_manager, 'clearance': settings.clearance}
+    # Or hard-code it?
+    # return {'webmaster': 'Rojeh Yaghoobi', 'manager': 'Dan Crichton', 'clearance': 'CL № 22-6220'}
