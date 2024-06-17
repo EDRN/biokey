@@ -29,7 +29,7 @@ for sub in media postgresql; do
 done
 
 echo "🪢 Pulling latest images"
-compose pull --quiet
+compose pull
 
 echo "🚢 Creating containers and starting composition in detached mode" 1>&2
 compose up --detach --quiet-pull --remove-orphans
