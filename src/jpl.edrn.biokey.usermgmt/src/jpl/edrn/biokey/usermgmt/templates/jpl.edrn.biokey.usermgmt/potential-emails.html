@@ -1,6 +1,17 @@
 {% extends 'base.html' %}
-{% load wagtailcore_tags biokey_usermgmt_filters %}
+{% load wagtailcore_tags biokey_usermgmt_filters wagtailimages_tags %}
 {% block content %}
+
+    {% with parent_page=page.get_parent.specific %}
+        {% if parent_page.logo %}
+            <div class='row mt-2 mb-3'>
+                <div class='col-auto'>
+                    {% image parent_page.logo max-960x100 as the_logo %}
+                    <img src='{{the_logo.url}}' alt='Logo of {{page.title}}'/>
+                </div>
+            </div>
+        {% endif %}
+    {% endwith %}
 
     <h1>Possible Existing Account{% if plural %}s{% endif %} Found</h1>
 

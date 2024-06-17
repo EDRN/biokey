@@ -232,6 +232,8 @@ To reset the password on this account, please visit the DMCC website at this add
 
 https://www.compass.fhcrc.org/edrns/pub/user/resetPwd.aspx?t=pwd&amp;t2=pwd2&amp;sub=form&amp;w=1&amp;p=3&amp;param=reset&amp;t3=pwd&amp;sub2=lift
 
+Note that if you did not request this, simply ignore this email.
+
 Thank you.
 '''
 

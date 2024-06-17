@@ -1,7 +1,18 @@
 {% extends 'base.html' %}
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags wagtailimages_tags %}
 {# This is used by AbstractForm #}
 {% block content %}
+
+    {% with parent_page=page.get_parent.specific %}
+        {% if parent_page.logo %}
+            <div class='row mt-2 mb-3'>
+                <div class='col-auto'>
+                    {% image parent_page.logo max-960x100 as the_logo %}
+                    <img src='{{the_logo.url}}' alt='Logo of {{page.title}}'/>
+                </div>
+            </div>
+        {% endif %}
+    {% endwith %}
 
     <h1>
         {% if page %}

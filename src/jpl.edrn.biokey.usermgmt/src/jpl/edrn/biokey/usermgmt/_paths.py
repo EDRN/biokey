@@ -19,7 +19,8 @@ def make_pwreset_url(slug: str, uid: str, token: str, request: HttpRequest) -> s
     base_url = f'{scheme}://{current_site.hostname}'
     if current_site.port and current_site.port not in (80, 443):
         base_url += f':{current_site.port}'
-    base_url += settings.FORCE_SCRIPT_NAME
+    if settings.FORCE_SCRIPT_NAME:
+        base_url += settings.FORCE_SCRIPT_NAME
 
     return f'{base_url}/pwreset/{slug}/{uid}/{token}'
 

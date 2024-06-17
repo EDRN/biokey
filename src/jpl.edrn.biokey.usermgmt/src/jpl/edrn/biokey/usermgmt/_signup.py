@@ -65,7 +65,7 @@ class NameRequestFormPage(AbstractFormPage):
                         plural = len(potential_emails) > 1
                         params = {
                             'potential_emails': potential_emails, 'plural': plural, 'consortium': parent.title,
-                            'parent_url': parent.url, 'first_name': fn, 'last_name': ln
+                            'parent_url': parent.url, 'first_name': fn, 'last_name': ln, 'page': self
                         }
                         return render(request, PACKAGE_NAME + '/potential-emails.html', params)
                     else:
