@@ -56,7 +56,7 @@ class ForgottenDetailsFormPage(AbstractFormPage):
                     # If accounts are found or not, tell the user we've sent the reminders by email.
                     # As with the `uid` case, this prevents the leakage of known email addresses.
                     dit.send_uid_reminders(accounts, request)
-                    params = {'page': self, 'email': email, 'dit': dit}
+                    params = {'page': self, 'email': email, 'dit': dit, 'url': dit.get_full_url(request)}
                     return render(request, PACKAGE_NAME + '/uid-reminder-email-sent.html', params)
         else:
             form = ForgottenDetailsForm(page=self)

@@ -34,7 +34,10 @@ def _ldap_to_dict(search_result: tuple) -> dict:
     its dict representation in the `biokey` key.
     '''
     dn, d = search_result
-    desc = d['description'][0].decode('utf-8')
+    try:
+        desc = d['description'][0].decode('utf-8')
+    except KeyError:
+        desc = ''
     biokey_match, biokey = _biokey_json_re.match(desc), None
     if biokey_match and biokey_match.group(3):
         try:

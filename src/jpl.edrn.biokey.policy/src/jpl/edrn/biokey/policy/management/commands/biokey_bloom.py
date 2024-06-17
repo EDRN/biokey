@@ -22,7 +22,7 @@ import argparse, os, ldap, importlib.resources
 
 class Command(BaseCommand):
     help = 'Blooms BioKey with initial content'
-    _hostname = 'edrn.jpl.nasa.gov'
+    _hostname = 'labcas-dev.jpl.nasa.gov'
     _port = 80
     _description = 'User profile management for cancer biomarker applications'
     _seo_title = 'EDRN BioKey User Profile Management'
@@ -130,7 +130,11 @@ class Command(BaseCommand):
         self.stdout.write('Creating email settings')
         email = EmailSettings.objects.get_or_create(site_id=site.id)[0]
         email.from_address = 'no-reply@jpl.nasa.gov'
-        email.new_users_address = 'edrn-ic@jpl.nasa.gov'
+
+        # 🔮 This should be edrn-ic@
+        # email.new_users_address = 'edrn-ic@jpl.nasa.gov'
+        # But for testing let's just do me
+        email.new_users_address = 'sean.kelly@jpl.nasa.gov'
         email.save()
 
         self.stdout.write('Creating password settings')

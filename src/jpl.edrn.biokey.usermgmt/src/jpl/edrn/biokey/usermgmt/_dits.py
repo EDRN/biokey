@@ -167,7 +167,7 @@ Thank you.
         link = make_pwreset_url(self.slug, account['uid'], token, request)
         message = self.reset_request_email_template.format(
             uid=account['uid'], natural_delta=humanize.naturaldelta(window), link=link, 
-            expiration_time=expiration.ctime(), url=self.full_url,
+            expiration_time=expiration.ctime(), url=self.get_full_url(request),
         )
         send_email(
             email.from_address, [account['email']], f'Password reset for {account["uid"]}', message,
@@ -190,7 +190,7 @@ Thank you.
         link = make_pwreset_url(self.slug, account_name, token, request)
         message = self.creation_email_template.format(
             uid=account_name, consortium=self.title, natural_delta=humanize.naturaldelta(window), link=link,
-            expiration_time=expiration.ctime(), url=self.full_url
+            expiration_time=expiration.ctime(), url=self.get_full_url(request)
         )
         send_email(
             email_settings.from_address, [email], f'Your new {consortium} account', message, attachment=None, delay=0
@@ -207,7 +207,7 @@ Thank you.
         subject = f'Your {consortium} account username'
         for account in accounts:
             email, uid = account['email'], account['uid']
-            message = self.forgotten_uid_template.format(consortium=consortium, url=self.full_url, uid=uid)
+            message = self.forgotten_uid_template.format(consortium=consortium, url=self.get_full_url(request), uid=uid)
             send_email(settings.from_address, [email], subject, message, attachment=None, delay=delay)
             delay += 2
 
