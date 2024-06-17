@@ -8,10 +8,9 @@ from wagtail.admin.panels import FieldPanel
 from wagtail.fields import StreamField
 from wagtail.models import Page
 from wagtail.search import index
-from wagtailmetadata.models import MetadataPageMixin
 
 
-class HomePage(MetadataPageMixin, Page):
+class HomePage(Page):
     '''A page specifically for the home page of the site.'''
 
     template = 'jpl.edrn.biokey.content/home-page.html'
@@ -38,7 +37,7 @@ class HomePage(MetadataPageMixin, Page):
         verbose_name_plural = 'home pages'
 
 
-class FlexPage(MetadataPageMixin, Page):
+class FlexPage(Page):
     '''A flexible page that has a stream of various fields.'''
 
     template = 'jpl.edrn.biokey.content/flex-page.html'

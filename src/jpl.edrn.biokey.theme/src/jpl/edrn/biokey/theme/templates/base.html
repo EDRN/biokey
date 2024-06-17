@@ -1,4 +1,4 @@
-{% load static wagtailcore_tags wagtailuserbar favicon_tags %}
+{% load static wagtailcore_tags wagtailuserbar %}
 <!DOCTYPE html>
 <html lang='en'>
     <head>
@@ -22,7 +22,6 @@
                 <meta name='description' content='{{page.search_description}}'/>
             {% endblock %}
         {% endspaceless %}
-        {% favicon_meta %}
         <meta name='viewport' content='width=device-width, initial-scale=1'/>
         {% if page.canonical_url %}
             <link rel='canonical' href='{{page.canonical_url}}'/>

@@ -25,6 +25,6 @@ MIGRATION_MODULES = {
 # 🔗 https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 
 INSTALLED_APPS = [
-    'captcha',
     'wagtailcaptcha',
+    'captcha',
 ]

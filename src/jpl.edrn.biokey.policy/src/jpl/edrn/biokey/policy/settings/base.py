@@ -45,17 +45,8 @@ INSTALLED_APPS = theme_settings.INSTALLED_APPS + content_settings.INSTALLED_APPS
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Sitemap generation
-    'wagtail.contrib.sitemaps',
-    'django.contrib.sitemaps',
-
     # Add-ons:
-    'wagtail.contrib.modeladmin',  # Needed by wagtailmenus and wagtail-robots
-    'wagtailmenus',                # Navigation menus
-    'robots',                      # wagtail-robots's robots.txt handling
     'django_celery_results',       # Background task support (RDF ingest)
-    'wagtail_favicon',             # Site icon, manifest.json, browser-config.xml support
-    'wagtailmetadata',             # SEO enhancements
 
     # This Is Us™:
     'jpl.edrn.biokey.policy',
@@ -129,7 +120,6 @@ TEMPLATES = theme_settings.TEMPLATES + [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'wagtailmenus.context_processors.wagtailmenus',          # Needed by wagtaimenus, duh
                 'wagtail.contrib.settings.context_processors.settings',  # For global settings
             ],
         },

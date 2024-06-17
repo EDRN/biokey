@@ -9,20 +9,15 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import path, include, re_path
 from wagtail.admin import urls as wagtailadmin_urls
-from wagtail.contrib.sitemaps.views import sitemap
 from wagtail import urls as wagtail_urls
 from wagtail.documents import urls as wagtaildocs_urls
-from wagtail_favicon.urls import urls as favicon_urls
 from jpl.edrn.biokey.usermgmt.urls import urlpatterns as usermgmt_urlpatterns
 
 urlpatterns = usermgmt_urlpatterns + [
     path('django-admin/', admin.site.urls),
     path('admin/', include(wagtailadmin_urls)),
     path('documents/', include(wagtaildocs_urls)),
-    re_path(r'^robots\.txt', include('robots.urls')),
-    re_path(r'^sitemap\.xml$', sitemap),
     re_path(r'', include(wagtail_urls)),
-    re_path(r'', include(favicon_urls)),
 ]
 
 # Note: we wouldn't normally want to serve static files or media out of the `urlpatterns` listed

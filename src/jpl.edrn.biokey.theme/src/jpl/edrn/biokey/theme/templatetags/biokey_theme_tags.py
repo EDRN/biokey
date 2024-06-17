@@ -30,6 +30,6 @@ def biokey_site_version() -> str:
 @register.inclusion_tag(PACKAGE_NAME + '/colophon.html', takes_context=True)
 def biokey_colophon(context: Context) -> dict:
     settings = ColophonSettings.for_site(Site.find_for_request(context['request']))
-    return {'webmaster': settings.webmaster, 'manager': settings.site_manager, 'clearance': settings.clearance}
-    # Or hard-code it?
+    return {'webmaster': settings.webmaster, 'manager': settings.site_honcho, 'clearance': settings.clearance}
+    # # Or hard-code it?
     # return {'webmaster': 'Rojeh Yaghoobi', 'manager': 'Dan Crichton', 'clearance': 'CL № 22-6220'}

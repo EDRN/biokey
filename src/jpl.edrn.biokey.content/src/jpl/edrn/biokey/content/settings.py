@@ -24,10 +24,5 @@ MIGRATION_MODULES = {
 
 INSTALLED_APPS = [
     'jpl.edrn.biokey.streams',
-    # 'wagtail.contrib.table_block',
-    # 'wagtail.contrib.typed_table_block',
-    # 'wagtail.contrib.forms',
     'widget_tweaks',
-    # 'wagtailcaptcha',
-    # 'captcha',
 ]

@@ -1,9 +1,5 @@
 {% extends "base.html" %}
-{% load wagtailcore_tags cache wagtailmetadata_tags static wagtailimages_tags %}
-{% block metadata_tags %}
-    {{block.super}}
-    {# 🔮 TODO {% meta_tags %} #}
-{% endblock metadata_tags %}
+{% load wagtailcore_tags cache static wagtailimages_tags %}
 {% block content %}
 
     {% if page.logo %}

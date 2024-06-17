@@ -29,7 +29,7 @@ ENV PYTHONUNBUFFERED=1
 # Base Packages
 # ~~~~~~~~~~~~~
 
-RUN \
+RUN : &&\
     : Add system -S group for biokey, group ID -g &&\
     /usr/sbin/addgroup -S -g $user_id biokey &&\
     : Add system -S user for biokey with no password -D, group biokey -g, user ID -u, gecos info -g, home dir -h &&\
@@ -58,7 +58,7 @@ RUN [ `/usr/bin/python3 --version | sed -E 's/[^0-9]*([0-9]+\.[0-9]+)\.[0-9]+/\1
 #
 # This is handy for development:
 
-RUN :&&\
+RUN : &&\
     echo 'TLS_REQCERT never' >> /etc/openldap/ldap.conf &&\
     :
 
@@ -75,33 +75,25 @@ RUN : &&\
 COPY --chown=biokey:biokey ./dist/*.whl /app/wheels/
 RUN /app/bin/pip3 install --progress-bar off /app/wheels/*.whl
 
-RUN :&&\
+# For some reason I cannot fathom, BioKey software causes Django's `makemigrations` to
+# generate a dependency on `wagtailcore.FormSubmission` (apparently related to `wagtailcaptcha).
+# In development, it's trivial to generate the dependency since you have write access to your
+# own Python virtual environment. But in Docker, the dependency doesn't exist because we have
+# a fresh installation of our virtual environment and the the `0090_formsubmission.py` doesn't
+# yet exist. So, after we install our BioKey software, we need to destroy all of its migrations
+# and re-generate them all.
+
+RUN : &&\
+    : Destroy existing BioKey migrations &&\
+    /usr/bin/find /app/lib/python3.11/site-packages/jpl/edrn/biokey/*/migrations -name '0*.py' -not -name '__init__.py' -delete &&\
+    : Now make migrations for everything, BioKey, Wagtail, etc. &&\
+    /usr/bin/env LDAP_BIND_PASSWORD=unused SIGNING_KEY=unused /app/bin/django-admin makemigrations --settings jpl.edrn.biokey.policy.settings.ops --no-input &&\
     cd /app &&\
     : Get the static files ready &&\
     /sbin/su-exec biokey /usr/bin/env LDAP_BIND_PASSWORD=unused SIGNING_KEY=unused /app/bin/django-admin collectstatic --settings jpl.edrn.biokey.policy.settings.ops --no-input --clear --link &&\
     :
 
-RUN :&&\
-    : Get database migrations ready and no I have no idea why we have to do wagtailcore first &&\
-    /usr/bin/env LDAP_BIND_PASSWORD=unused SIGNING_KEY=unused /app/bin/django-admin makemigrations --settings jpl.edrn.biokey.policy.settings.ops --no-input --scriptable wagtailcore &&\
-    :
-
-RUN :&&\
-    : Get database migrations ready and no I have no idea why we have to do wagtail_favicon first &&\
-    /usr/bin/env LDAP_BIND_PASSWORD=unused SIGNING_KEY=unused /app/bin/django-admin makemigrations --settings jpl.edrn.biokey.policy.settings.ops --no-input --scriptable wagtail_favicon &&\
-    :
-
-RUN :&&\
-    : Get database migrations ready and no I have no idea why we have to do robots first &&\
-    /usr/bin/env LDAP_BIND_PASSWORD=unused SIGNING_KEY=unused /app/bin/django-admin makemigrations --settings jpl.edrn.biokey.policy.settings.ops --no-input --scriptable robots &&\
-    :
-
-RUN :&&\
-    : =================== wtf ==================== &&\
-    /usr/bin/env LDAP_BIND_PASSWORD=unused SIGNING_KEY=unused /app/bin/django-admin makemigrations --settings jpl.edrn.biokey.policy.settings.ops --no-input --scriptable &&\
-    :
-
-RUN \
+RUN : &&\
     : Clean up clean up everybody everywhere &&\
     : PrismaCloud does not like pip to be in the image &&\
     /app/bin/pip3 uninstall --yes --quiet pip &&\

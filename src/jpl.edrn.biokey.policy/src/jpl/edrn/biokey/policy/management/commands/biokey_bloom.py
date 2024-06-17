@@ -13,7 +13,7 @@ from jpl.edrn.biokey.theme.models import ColophonSettings
 from django.conf import settings
 from django.core.files.images import ImageFile
 from django.core.management.base import BaseCommand
-from robots.models import Rule, DisallowedUrl
+# from robots.models import Rule, DisallowedUrl
 from wagtail.images.models import Image
 from wagtail.models import Site
 from wagtail.rich_text import RichText
@@ -62,19 +62,6 @@ class Command(BaseCommand):
         home_page.save()
         site.save()
         return site, home_page
-
-    def _set_robots_txt(self, site: Site):
-        self.stdout.write('Setting up robots.txt')
-        DisallowedUrl.objects.all().delete()
-        Rule.objects.all().delete()
-
-        rule = Rule(robot='*')
-        rule.save()
-        rule.sites.add(site)
-        url = DisallowedUrl(pattern='/')
-        rule.disallowed.add(url)
-        url.save()
-        rule.save()
 
     def _add_forms_to_dit(self, dit):
         name_request = NameRequestFormPage(
@@ -163,7 +150,10 @@ class Command(BaseCommand):
             settings.WAGTAILSEARCH_BACKENDS['default']['AUTO_UPDATE'] = False
 
             site, home_page = self.set_site(options['hostname'], options['port'])
-            self._set_robots_txt(site)
+
+            # No need for this as the front-end web server has its own robots.txt:
+            # self._set_robots_txt(site)
+
             self._set_settings(site)
             password = os.getenv('DEFAULT_LDAP_SERVER_PASSWORD')
             if password:

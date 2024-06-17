@@ -80,12 +80,3 @@ echo '🏁 Done! You can start it with:'
 echo './manage.sh runserver 6468'
 
 exit 0
-
-
-# For 6.0.5, the commands we used to run were:
-# ./manage.sh edrnpromotesearch
-# ./manage.sh importpaperless ../P5/var/zope-debug/edrn.json ../P5/var/blobstorage
-# ./manage.sh translatetables
-# ./manage.sh rewritereferencesets
-# ./manage.sh installdataqualityreports
-# ./manage.sh rebuild_references_index
