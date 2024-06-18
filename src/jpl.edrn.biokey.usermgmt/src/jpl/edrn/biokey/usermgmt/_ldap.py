@@ -5,8 +5,9 @@
 
 from ._dits import DirectoryInformationTree
 from .constants import MAX_EMAIL_LENGTH
+from ._passwords import generate_random_password
 from contextlib import contextmanager
-import logging, ldap, random, re, string, hashlib, base64, ldap.modlist, json, datetime, os
+import logging, ldap, random, re, hashlib, base64, ldap.modlist, json, datetime, os
 
 
 _logger = logging.getLogger(__name__)
@@ -16,8 +17,6 @@ _account_name_total_attempts = 20
 _biokey_json_re              = re.compile(r'([^@]*)(@@biokey=(.*$))?')
 _edrn_object_classes         = ['top', 'person', 'organizationalPerson', 'inetOrgPerson', 'edrnPerson']
 _max_bare_account            = max(MAX_EMAIL_LENGTH - 3, 4)
-_random_password_corpus      = string.ascii_letters + string.digits
-_random_password_length      = 20
 _reset_token_random_bytes    = 32
 _reset_token_length          = 16
 
@@ -80,10 +79,7 @@ def _hash_password(password: str) -> bytes:
 
 
 def generate_random_ldap_password() -> bytes:
-    # What I used in lpdautils:
-    pw = ''.join(random.sample(_random_password_corpus, _random_password_length))
-    # What I originally came up with:
-    # pw = ''.join(random.choices(_random_password_corpus, k=_random_password_length)).encode('utf-8')
+    pw = generate_random_password()
     return _hash_password(pw)
 
 

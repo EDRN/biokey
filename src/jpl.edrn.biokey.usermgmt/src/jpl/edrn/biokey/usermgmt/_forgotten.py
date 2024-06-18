@@ -6,6 +6,7 @@
 from . import PACKAGE_NAME
 from ._forms import AbstractForm, AbstractFormPage
 from ._ldap import get_account_by_uid, get_accounts_by_email
+from ._passwords import check_complexity
 from .constants import MAX_UID_LENGTH, MAX_EMAIL_LENGTH, MAX_PASSWORD_LENGTH, GENERIC_FORM_TEMPLATE
 from captcha.fields import ReCaptchaField
 from django import forms
@@ -72,8 +73,18 @@ class ResetForgottenPasswordForm(AbstractForm):
         help_text='Confirm the new password', max_length=MAX_PASSWORD_LENGTH, widget=forms.PasswordInput()
     )
 
+    def clean_new_password(self):
+        pwd = self.cleaned_data.get('new_password')
+        if check_complexity(pwd):
+            return pwd
+        raise ValidationError('Password should either be a 20-character long passphrase, or, if shorter, it must contain mixed case letters, at least one digit, and at least one special character.')
+
     def clean(self):
         cleaned_data = super().clean()
+        if not self.is_valid():
+            # clean_new_password has already marked the form as invalid, so no need to continue
+            return cleaned_data
+
         n, c = cleaned_data.get('new_password'), cleaned_data.get('confirm_new_password')
         if n != c: raise ValidationError('Passwords do not match')
         return cleaned_data

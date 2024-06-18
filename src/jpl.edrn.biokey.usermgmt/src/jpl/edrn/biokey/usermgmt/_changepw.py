@@ -5,6 +5,7 @@
 from . import PACKAGE_NAME
 from ._forms import AbstractForm, AbstractFormPage
 from ._ldap import verify_password
+from ._passwords import check_complexity
 from .constants import MAX_UID_LENGTH, MAX_PASSWORD_LENGTH, GENERIC_FORM_TEMPLATE
 from captcha.fields import ReCaptchaField
 from django import forms
@@ -28,8 +29,17 @@ class PasswordChangeForm(AbstractForm):
     if not settings.DEBUG:
         captcha = ReCaptchaField()
 
+    def clean_new_password(self):
+        pwd = self.cleaned_data.get('new_password')
+        if check_complexity(pwd):
+            return pwd
+        raise ValidationError('Password should either be a 20-character long passphrase, or, if shorter, it must contain mixed case letters, at least one digit, and at least one special character.')
+
     def clean(self):
         cleaned_data = super().clean()
+        if not self.is_valid():
+            # clean_new_password has already marked the form as invalid, so no need to continue
+            return cleaned_data
 
         n, c = cleaned_data.get('new_password'), cleaned_data.get('confirm_new_password')
         if n != c: raise ValidationError('New passwords do not match')
