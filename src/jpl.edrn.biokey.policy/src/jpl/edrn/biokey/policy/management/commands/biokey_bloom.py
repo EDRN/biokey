@@ -118,7 +118,7 @@ class Command(BaseCommand):
             page_title='EDRN Password Management',
             user_base='dc=edrn,dc=jpl,dc=nasa,dc=gov', user_scope=ldap.SCOPE_ONELEVEL,
             group_base='dc=edrn,dc=jpl,dc=nasa,dc=gov', group_scope=ldap.SCOPE_ONELEVEL,
-            help_address='edrn-ic@jpl.nasa.gov'
+            help_address='ic-accounts@jpl.nasa.gov'
         )
         parent.add_child(instance=dit)
         self._add_forms_to_dit(dit)
@@ -132,9 +132,7 @@ class Command(BaseCommand):
         email.from_address = 'no-reply@jpl.nasa.gov'
 
         # 🔮 This should be edrn-ic@
-        # email.new_users_address = 'edrn-ic@jpl.nasa.gov'
-        # But for testing let's just do me
-        email.new_users_address = 'sean.kelly@jpl.nasa.gov'
+        email.new_users_addresses = 'ic-accounts@jpl.nasa.gov'
         email.save()
 
         self.stdout.write('Creating password settings')

@@ -98,6 +98,6 @@ AUTH_LDAP_USER_ATTR_MAP = {
 
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {
     'is_active':    'cn=all.personnel,ou=personnel,dc=dir,dc=jpl,dc=nasa,dc=gov',
-    'is_staff':     'cn=edrn-ic,ou=personnel,dc=dir,dc=jpl,dc=nasa,dc=gov',
-    'is_superuser': 'cn=edrn-ic,ou=personnel,dc=dir,dc=jpl,dc=nasa,dc=gov',
+    'is_staff':     'cn=ic-accounts,ou=personnel,dc=dir,dc=jpl,dc=nasa,dc=gov',
+    'is_superuser': 'cn=ic-accounts,ou=personnel,dc=dir,dc=jpl,dc=nasa,dc=gov',
 }
