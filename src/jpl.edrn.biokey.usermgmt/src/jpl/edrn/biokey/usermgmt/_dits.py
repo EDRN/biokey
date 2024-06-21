@@ -8,12 +8,13 @@ Note: we cannot import ._ldap up top here as it'll result in a circular dependen
 from . import PACKAGE_NAME
 from ._paths import make_pwreset_url
 from ._settings import EmailSettings, PasswordSettings
+from ._users import PendingUser
 from .constants import MAX_EMAIL_LENGTH
 from .tasks import send_email
 from django import forms
 from django.core.validators import URLValidator
 from django.db import models
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse, HttpResponseForbidden, HttpResponseBadRequest, HttpResponseNotFound
 from django.utils import timezone
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel, FieldRowPanel
 from wagtail.models import Page
@@ -69,6 +70,37 @@ Note that if you did not request this, then simply ignore this email.
 Thank you.
 '''
 
+    _notification_template = '''Notice:
+
+{fn} {ln} has registered for a {consortium} account with the user ID {uid}.
+
+This account is pending approval. Please visit {url} as an administrator to approve or reject the account. Not sure how to log in as an administrator? There's a login link in the footer at the bottom of the page.
+
+If you need to reach out to this user first, they provided the following details:
+
+Phone: {phone}
+Email: {email}
+
+Thanks,
+—BioKey
+'''
+
+    _approval_template = '''Greetings {fn} {ln}:
+
+We're writing to let you know that your account, {uid}, has been approved and you can now use {consortium} applications with expanded access.
+
+As a reminder, if you need to change your password or if you've forgotten it, simply visit this URL: {url}
+
+Thank you.
+'''
+
+    _rejection_template = '''Greetings {fn} {ln}:
+
+We're writing to inform you that your account, {uid}, was rejected for {consortium} and has been deleted.
+
+We regret any inconvenience.
+'''
+
     template = PACKAGE_NAME + '/dit.html'
     page_description = 'A single data information tree within LDAP in which users and groups are found'
     search_auto_update = False
@@ -98,6 +130,10 @@ Thank you.
     group_scope = models.IntegerField(
         blank=False, help_text='Search scope for groups', default=ldap.SCOPE_ONELEVEL, choices=_scope_choices.items()
     )
+    acceptance_group = models.CharField(
+        blank=False, max_length=600, help_text='Group to which to move approved users',
+        default='cn=All Users,ou=groups,o=organization'
+    )
     creation_email_template = models.TextField(
         blank=False, help_text="Email template for end users' newly-created accounts", default=_created_account
     )
@@ -115,6 +151,18 @@ Thank you.
     )
     logo = models.ForeignKey(
         'wagtailimages.Image', null=True, blank=True, on_delete=models.SET_NULL, related_name='dit_logo'
+    )
+    creation_notification_template = models.TextField(
+        blank=False, help_text='Email template for administrators when notified of a newly-created account',
+        default=_notification_template
+    )
+    approval_template = models.TextField(
+        blank=False, help_text='Email template for end-users letting them now their accounts have been approved.',
+        default=_approval_template
+    )
+    rejection_template = models.TextField(
+        blank=False, help_text='Email template for end-users letting them now their accounts have been rejected.',
+        default=_rejection_template
     )
 
     content_panels = Page.content_panels + [
@@ -135,17 +183,40 @@ Thank you.
             FieldRowPanel((
                 FieldPanel('group_base'),
                 FieldPanel('group_scope'),
+                FieldPanel('acceptance_group'),
             )),
         )),
         FieldPanel('help_address'),
         FieldPanel('creation_email_template'),
         FieldPanel('reset_request_email_template'),
         FieldPanel('forgotten_uid_template'),
+        FieldPanel('approval_template'),
+        FieldPanel('rejection_template'),
+        FieldPanel('creation_notification_template'),
     ]
+
+    def serve(self, request: HttpRequest) -> HttpResponse:
+        disposition = request.GET.get('disposition')
+        if disposition:
+            if not request.user.is_staff and not request.user.is_superuser:
+                raise HttpResponseForbidden(reason='Admins only can do this')
+            uid = request.GET.get('uid')
+            if not uid: raise HttpResponseBadRequest(reason='No uid')
+            pending = self.pending_users.filter(uid=uid).first()
+            if not pending: raise HttpResponseBadRequest(reason='UID not pending')
+            if disposition == 'accept':
+                self.accept_pending_user(pending, request)
+            elif disposition == 'reject':
+                self.reject_pending_user(pending, notify=True, request=request)
+            elif disposition == 'delete':
+                self.reject_pending_user(pending, notify=False, request=request)
+            else:
+                raise HttpResponseBadRequest(reason='Bad disposition')
+        return super().serve(request)
 
     def get_context(self, request: HttpRequest, *args, **kwargs) -> dict:
         context = super().get_context(request, args, kwargs)
-        context['is_superuser'] = request.user.is_superuser
+        context['is_staff'] = request.user.is_staff
         context['user_scope'] = _scope_choices[self.user_scope]
         context['group_scope'] = _scope_choices[self.group_scope]
         sign_up = self.get_children().filter(slug='sign-up').first()
@@ -154,7 +225,46 @@ Thank you.
         if changepw: context['changepw'] = changepw.url
         forgotten = self.get_children().filter(slug='forgotten').first()
         if forgotten: context['forgotten'] = forgotten.url
+        context['pending_users'] = self.pending_users.all().order_by('created_at')
+        context['have_pending_users'] = context['pending_users'].count() > 0
         return context
+
+    def accept_pending_user(self, pending: PendingUser, request: HttpRequest):
+        from ._ldap import add_to_group
+
+        _logger.info('Accepting pending user %s', pending)
+        email = EmailSettings.for_site(Site.find_for_request(request))
+        c, url = self.slug.upper(), self.get_full_url(request)
+        message = self.approval_template.format(fn=pending.fn, ln=pending.ln, uid=pending.uid, consortium=c, url=url)
+        send_email(
+            email.from_address, [pending.email], f'Your {c} account {pending.uid} has been approved',
+            message, attachment=None, delay=0
+        )
+        add_to_group(self, pending.uid, self.acceptance_group)
+        pending.delete()
+        self.refresh_from_db()
+
+    def reject_pending_user(self, pending: PendingUser, notify: bool, request: HttpRequest | None):
+        '''Reject the `pending` user.
+
+        If `notify` is `True`, send an email to the user telling them. The `request` must
+        also be provided. If `notify` is `False`, no email is sent and the user is silently
+        deleted. The `request` is optional in this case.
+        '''
+        from ._ldap import delete_account
+
+        _logger.info('Rejecting pending user %s with email=%r', pending, notify)
+        if notify:
+            email = EmailSettings.for_site(Site.find_for_request(request))
+            c = self.slug.upper()
+            message = self.rejection_template.format(fn=pending.fn, ln=pending.ln, uid=pending.uid, consortium=c)
+            send_email(
+                email.from_address, [pending.email], f'Your {c} account {pending.uid} has been rejected',
+                message, attachment=None, delay=0
+            )
+        delete_account(self, pending.uid)
+        pending.delete()
+        self.refresh_from_db()
 
     def send_reset_email(self, account: dict, request: HttpRequest):
         # Generate a timer and a token
@@ -174,13 +284,11 @@ Thank you.
             attachment=None, delay=0
         )
 
-    def send_account_reminder_email(self, account: dict):
-        raise NotImplementedError("This doesn't work yet either")
-
     def create_account(self, fn: str, ln: str, phone: str, email: str, request: HttpRequest) -> str:
         from ._ldap import create_new_account, generate_reset_token, get_account_by_uid
         site = Site.find_for_request(request)
         account_name = create_new_account(fn, ln, phone, email, self)
+        PendingUser(uid=account_name, fn=fn, ln=ln, phone=phone, email=email, page=self).save()
         account = get_account_by_uid(account_name, self)
         email_settings, pwd_settings = EmailSettings.for_site(site), PasswordSettings.for_site(site)
         window, now = datetime.timedelta(minutes=pwd_settings.reset_window), timezone.now()
@@ -195,10 +303,13 @@ Thank you.
         send_email(
             email_settings.from_address, [email], f'Your new {consortium} account', message, attachment=None, delay=0
         )
+        message = self.creation_notification_template.format(
+            uid=account_name, consortium=self.title, url=self.get_full_url(request), fn=fn, ln=ln,
+            phone=phone, email=email
+        )
         send_email(
             email_settings.from_address, [i.strip() for i in email_settings.new_users_addresses.split(',')],
-            f'New {consortium} account created', f'New {consortium} account «{account_name}» has just been created',
-            attachment=None, delay=10
+            f'New {consortium} account created: {account_name}', message, attachment=None, delay=10
         )
         return account_name
 

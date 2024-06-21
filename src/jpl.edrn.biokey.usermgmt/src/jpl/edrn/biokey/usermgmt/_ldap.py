@@ -232,3 +232,26 @@ def change_password(dit: DirectoryInformationTree, uid: str, password: str):
     with ldap_connection(dit) as connection:
         modlist = [(ldap.MOD_REPLACE, 'userPassword', [_hash_password(password)])]
         connection.modify_s(dn, modlist)
+
+
+def delete_account(dit: DirectoryInformationTree, uid: str):
+    '''Delete the account with the given `uid` from `dit`.'''
+    dn = f'uid={uid},{dit.user_base}'
+    with ldap_connection(dit) as connection:
+        try:
+            _logger.info('Deleting DN %s from LDAP', dn)
+            connection.delete_s(dn)
+        except ldap.NO_SUCH_OBJECT:
+            _logger.info('The DN I was trying to delete, %s, does not exist! Pressing on', dn)
+
+
+def add_to_group(dit: DirectoryInformationTree, uid: str, group_dn: str):
+    '''Add the user with the given `uid` in `dit` to the group with the DN `group_dn`.'''
+    dn = f'uid={uid},{dit.user_base}'
+    _logger.info('Adding %s as uniqueMember to %s', dn, group_dn)
+    modlist = [(ldap.MOD_ADD, 'uniqueMember', [dn.encode('utf-8')])]
+    with ldap_connection(dit) as connection:
+        try:
+            connection.modify_s(group_dn, modlist)
+        except ldap.TYPE_OR_VALUE_EXISTS:
+            _logger.info('The DN %s is already a uniqueMember of %s; pressing on', dn, group_dn)

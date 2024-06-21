@@ -96,15 +96,15 @@ class Command(BaseCommand):
         DirectoryInformationTree.objects.child_of(parent).delete()
         parent.refresh_from_db()
 
-        for slug, name, title, user_base, group_base, help_address, logo_fn in (
-            ('mcl', 'Consortium for Molecular and Cellular Characterization of Screen-Detected Lesions', 'MCL Password Management', 'ou=users,o=MCL', 'ou=groups,o=MCL', 'ic-data@jpl.nasa.gov', 'mcl.png'),
-            ('nist', 'National Institutes of Standards and Technology', 'NIST Password Management', 'ou=users,o=NIST', 'ou=groups,o=NIST', 'ic-data@jpl.nasa.gov', 'nist.png'),
+        for slug, name, title, user_base, group_base, help_address, logo_fn, acceptance in (
+            ('mcl', 'Consortium for Molecular and Cellular Characterization of Screen-Detected Lesions', 'MCL Password Management', 'ou=users,o=MCL', 'ou=groups,o=MCL', 'ic-data@jpl.nasa.gov', 'mcl.png', 'cn=All MCL,ou=groups,o=MCL'),
+            ('nist', 'National Institutes of Standards and Technology', 'NIST Password Management', 'ou=users,o=NIST', 'ou=groups,o=NIST', 'ic-data@jpl.nasa.gov', 'nist.png', 'cn=All Users,ou=groups,o=NIST'),
         ):
             self.stdout.write(f'Creating DIT for {name}')
             dit = DirectoryInformationTree(
                 title=name, page_title=title, manager_dn='uid=admin,ou=system', manager_password=password, uri=uri,
                 slug=slug, user_base=user_base, user_scope=ldap.SCOPE_ONELEVEL, group_base=group_base,
-                group_scope=ldap.SCOPE_ONELEVEL, help_address=help_address
+                group_scope=ldap.SCOPE_ONELEVEL, help_address=help_address, acceptance_group=acceptance
             )
             parent.add_child(instance=dit)
             self._add_forms_to_dit(dit)
@@ -118,7 +118,7 @@ class Command(BaseCommand):
             page_title='EDRN Password Management',
             user_base='dc=edrn,dc=jpl,dc=nasa,dc=gov', user_scope=ldap.SCOPE_ONELEVEL,
             group_base='dc=edrn,dc=jpl,dc=nasa,dc=gov', group_scope=ldap.SCOPE_ONELEVEL,
-            help_address='ic-accounts@jpl.nasa.gov'
+            help_address='ic-accounts@jpl.nasa.gov', acceptance_group='cn=Public Data,dc=edrn,dc=jpl,dc=nasa,dc=gov'
         )
         parent.add_child(instance=dit)
         self._add_forms_to_dit(dit)

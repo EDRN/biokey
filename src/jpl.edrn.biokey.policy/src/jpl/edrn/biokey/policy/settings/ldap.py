@@ -98,6 +98,9 @@ AUTH_LDAP_USER_ATTR_MAP = {
 
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {
     'is_active':    'cn=all.personnel,ou=personnel,dc=dir,dc=jpl,dc=nasa,dc=gov',
+    # Useful for testing logins that should not have permission on the site:
+    # 'is_staff':     'cn=jpl.km.person.us,ou=Personnel,dc=dir,dc=jpl,dc=nasa,dc=gov',
+    # 'is_superuser': 'cn=jpl.km.person.us,ou=Personnel,dc=dir,dc=jpl,dc=nasa,dc=gov',
     'is_staff':     'cn=ic-accounts,ou=personnel,dc=dir,dc=jpl,dc=nasa,dc=gov',
     'is_superuser': 'cn=ic-accounts,ou=personnel,dc=dir,dc=jpl,dc=nasa,dc=gov',
 }

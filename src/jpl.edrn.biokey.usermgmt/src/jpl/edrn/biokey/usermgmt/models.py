@@ -7,6 +7,7 @@ from ._dits import DirectoryInformationTree, EDRNDirectoryInformationTree
 from ._forgotten import ForgottenDetailsFormPage
 from ._settings import EmailSettings, PasswordSettings
 from ._signup import NameRequestFormPage
+from ._users import PendingUser
 
 
 __all__ = (
@@ -17,4 +18,5 @@ __all__ = (
     NameRequestFormPage,
     PasswordChangeFormPage,
     PasswordSettings,
+    PendingUser,
 )

@@ -16,3 +16,6 @@ MAX_PASSWORD_LENGTH = 250
 
 # Name of the template that renders forms
 GENERIC_FORM_TEMPLATE = PACKAGE_NAME + '/form.html'
+
+# Max length of a string telephone number
+MAX_PHONE_LENGTH = 40

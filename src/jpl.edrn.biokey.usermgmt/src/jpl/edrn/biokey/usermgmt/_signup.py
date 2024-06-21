@@ -6,7 +6,7 @@
 from . import PACKAGE_NAME
 from ._forms import AbstractForm, AbstractFormPage
 from ._ldap import get_potential_accounts
-from .constants import MAX_EMAIL_LENGTH, GENERIC_FORM_TEMPLATE
+from .constants import MAX_EMAIL_LENGTH, GENERIC_FORM_TEMPLATE, MAX_PHONE_LENGTH
 from captcha.fields import ReCaptchaField
 from django import forms
 from django.conf import settings
@@ -27,7 +27,7 @@ class AccountSignUpForm(NameRequestForm):
     _certification_text = '''By checking this box, I certify that I'm signing up for this account for my own use and I am authorized to do so.'''
     _telephone_text = '''Your telephone number, including country code and area code, if you know them. We use this as a last resort to text you a new password should other password resets fail.'''
 
-    telephone = forms.CharField(label='Telephone', max_length=40, help_text=_telephone_text)
+    telephone = forms.CharField(label='Telephone', max_length=MAX_PHONE_LENGTH, help_text=_telephone_text)
     email = forms.EmailField(label='Email', help_text='How to reach you by email.', max_length=MAX_EMAIL_LENGTH)
     for_self = forms.BooleanField(label='Certification', help_text=_certification_text)
 

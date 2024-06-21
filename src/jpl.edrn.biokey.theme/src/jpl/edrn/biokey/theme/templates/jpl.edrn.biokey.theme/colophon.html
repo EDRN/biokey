@@ -8,4 +8,19 @@
     <li class='nav-item list-inline-item footer-inline-item'>
         Clearance: <strong>{{clearance}}</strong>
     </li>
+    {% if login %}
+        <li class='ms-5 nav-item list-inline-item footer-inline-item'>
+            <a href='{{url}}' class='text-light'>Admin: <strong>Login</strong></a>
+        </li>
+    {% else %}
+        <li class='ms-5 nav-item list-inline-item footer-inline-item'>
+            <a href='{{url}}' class='text-light'>Logout: <strong>{{uid}}</a></strong>
+            {% if not permissions %}
+                <span class='ms-2 badge bg-warning text-dark'>
+                    <i class="bi bi-exclamation-triangle-fill"></i> No Permissions
+                </span>
+            {% endif %}
+        </li>
+    {% endif %}
 </ul>
+{# -*- Django HTML -*- #}
