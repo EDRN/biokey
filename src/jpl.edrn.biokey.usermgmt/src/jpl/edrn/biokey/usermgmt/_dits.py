@@ -72,7 +72,7 @@ Thank you.
 
     _notification_template = '''Notice:
 
-{fn} {ln} has registered for a {consortium} account with the user ID {uid}.
+{fn} {ln} has registered for a "{consortium}"" account with the user ID "{uid}".
 
 This account is pending approval. Please visit {url} as an administrator to approve or reject the account. Not sure how to log in as an administrator? There's a login link in the footer at the bottom of the page.
 
@@ -87,7 +87,7 @@ Thanks,
 
     _approval_template = '''Greetings {fn} {ln}:
 
-We're writing to let you know that your account, {uid}, has been approved and you can now use {consortium} applications with expanded access.
+We're writing to let you know that your account, "{uid}", has been approved and you can now use {consortium} applications with expanded access.
 
 As a reminder, if you need to change your password or if you've forgotten it, simply visit this URL: {url}
 
@@ -96,7 +96,7 @@ Thank you.
 
     _rejection_template = '''Greetings {fn} {ln}:
 
-We're writing to inform you that your account, {uid}, was rejected for {consortium} and has been deleted.
+We're writing to inform you that your account, "{uid}", was rejected for {consortium} and has been deleted.
 
 We regret any inconvenience.
 '''
