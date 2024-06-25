@@ -14,7 +14,7 @@ from .tasks import send_email
 from django import forms
 from django.core.validators import URLValidator
 from django.db import models
-from django.http import HttpRequest, HttpResponse, HttpResponseForbidden, HttpResponseBadRequest, HttpResponseNotFound
+from django.http import HttpRequest, HttpResponse, HttpResponseForbidden, HttpResponseBadRequest
 from django.utils import timezone
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel, FieldRowPanel
 from wagtail.models import Page
@@ -48,11 +48,15 @@ Thank you.
 '''
     _created_account = '''Hello!
 
-Your account, "{uid}", has been created for the {consortium}. To set the password for this account, you'll need to visit the following link within {natural_delta}:
+Your account, "{uid}", has been created for the {consortium}. Two things to be aware of:
+
+1. Your account is in the "pending" state. An administrator will review the account and may approve or reject it. Until it's approved, you won't have access to data or resources.
+
+2. While you're waiting, you can go ahead and set the password for this account. To do so, you'll need to visit the following link within {natural_delta}:
 
 {link}
 
-Please note that this link will expire on {expiration_time} (UTC). If you can't visit the link in that time, visit {url} and choose the "Forgotten password" option for a fresh link.
+This link will expire on {expiration_time} (UTC). If you can't visit the link in that time, visit {url} and choose the "Forgotten password" option for a fresh link.
 
 Thank you.
 '''
