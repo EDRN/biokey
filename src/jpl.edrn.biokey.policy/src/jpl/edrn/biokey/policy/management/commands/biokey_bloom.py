@@ -65,7 +65,7 @@ class Command(BaseCommand):
 
     def _add_forms_to_dit(self, dit):
         name_request = NameRequestFormPage(
-            title="EDRN Sign Up", slug='sign-up',
+            title="Apply for an EDRN LabCAS Account", slug='sign-up',
             intro=RichText("<p>To get started, let's get your details.</p>")
         )
         dit.add_child(instance=name_request)
