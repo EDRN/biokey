@@ -71,9 +71,10 @@ def reset_password(request: HttpRequest, consortium: str, uid: str) -> HttpRespo
                 _logger.warning('reset_password: consortium %s not found', consortium)
                 return HttpResponseNotFound(reason='consortium not found')
             reset_password_in_dit(dit, uid, form.cleaned_data['new_password'])
+            pending = dit.pending_users.filter(uid=uid).count() > 0
             return render(
                 request, PACKAGE_NAME + '/password-reset-success.html',
-                {'uid': uid, 'consortium': consortium.upper()}
+                {'uid': uid, 'consortium': consortium.upper(), 'pending': pending}
             )
         else:
             bootstrap_form_widgets(form)
