@@ -133,7 +133,7 @@ def generate_account_name(fn: str, ln: str, dit: DirectoryInformationTree) -> st
         while attempts < _account_name_total_attempts:
             results = connection.search_s(dit.user_base, dit.user_scope, f'(uid={uid})')
             if len(results) == 0:
-                _logger.info('UID «%s» is current;y available in «%s»', uid, dit.title)
+                _logger.info('UID «%s» is currently available in «%s»', uid, dit.title)
                 return uid
             else:
                 uid = f'{uid}{random.randrange(start=100, stop=399, step=1)}'
